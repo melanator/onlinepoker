@@ -1,12 +1,9 @@
-﻿// somegame.cpp: определяет точку входа для приложения.
-//
-
-#include "../include/somegame.h"
+﻿#include "../include/somegame.h"
 
 using namespace std;
 
 int main()
 {
-	cout << "Hello CMake." << endl;
+	cout << "Hello World!" << endl;
 	return 0;
 }
