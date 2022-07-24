@@ -4,4 +4,3 @@ project ("somegame")
 
 add_subdirectory(server)
 add_subdirectory(client)
-add_executable(project "main.cpp")
