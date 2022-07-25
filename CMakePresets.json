@@ -1,4 +1,4 @@
-﻿{
+{
     "version": 3,
     "configurePresets": [
         {
@@ -95,6 +95,18 @@
                 "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
                     "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
                 }
+            }
+        },
+        {
+            "name": "MSYS64",
+            "displayName": "GCC 12.1.0 x86_64-w64-mingw32",
+            "description": "Using compilers: C = C:\\Users\\a.shevchuk\\AppData\\Local\\Programs\\msys2\\mingw64\\bin\\gcc.exe, CXX = C:\\Users\\a.shevchuk\\AppData\\Local\\Programs\\msys2\\mingw64\\bin\\g++.exe",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "gcc.exe",
+                "CMAKE_CXX_COMPILER": "g++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         }
     ]
