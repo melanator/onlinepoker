@@ -9,7 +9,8 @@
             "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe"
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "CMAKE_CXX_FLAGS": "-DWIN_BUILD"
             },
             "condition": {
                 "type": "equals",
@@ -64,7 +65,8 @@
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS": "-DLINUX_BUILD"
             },
             "condition": {
                 "type": "equals",
@@ -86,7 +88,8 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "CMAKE_C_COMPILER": "gcc.exe",
                 "CMAKE_CXX_COMPILER": "g++.exe",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS": "-DWIN_BUILD"
             }
         }
     ]
