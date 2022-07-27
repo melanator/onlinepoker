@@ -1,12 +1,9 @@
-#include <iostream>
-
-// On windows, there is another library for sockets
-#ifdef WIN_BUILD
-#include <ws2tcpip.h>
-#else
-#include <sys/types.h>
-#include <sys/sockets.h>
-#endif
+/* 
+	Based on
+	Beej's Guide to Netwowk Programming
+	https://beej.us/guide/bgnet/html/
+*/
+#include "../include/server.h"
 
 using namespace std;
 
@@ -42,7 +39,6 @@ int main() {
 	bind(listening, (sockaddr*)&hint, sizeof(hint));
 
 	listen(listening, SOMAXCONN);
-
 	// Wait for a connection
 	sockaddr_in client;
 	int clientSize = sizeof(client);
@@ -97,9 +93,12 @@ int main() {
 
 	// Close the socket
 	closesocket(clientSocket);
-
+	
+	#ifdef WIN_BUILD
 	// Cleanup winsock
 	WSACleanup();
+	#endif
+
 
 	cout << "Server" << endl;
 	return 0;
