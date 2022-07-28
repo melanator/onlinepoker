@@ -1,13 +1,10 @@
-#include <iostream>
-#include <string>
-#include <ws2tcpip.h>
 #include "../include/client.h"
 using namespace std;
 
 int main() {
 	string ipAddress = "127.0.0.1";
 	int port = 54000;
-
+#ifdef WIN_BUILD
 	// Initialize winsock
 	WSAData wsaData;
 	WORD ver = MAKEWORD(2,2);
@@ -16,6 +13,7 @@ int main() {
 		cout << "Cant initialize winsock!" << endl;
 		return 1;
 	}
+#endif // WIN_BUILD
 
 	// Create socket
 	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -34,7 +32,6 @@ int main() {
 	int connResult = connect(sock, (sockaddr*)&hint, sizeof(hint));
 	if (connResult == SOCKET_ERROR){
 		cout << "Cant connet to server" << endl;
-		WSACleanup();
 		return 3;
 	}
 
@@ -64,9 +61,11 @@ int main() {
 
 	} while (userInput.size() > 0);
 
+#ifdef WIN_BUILD
 	//Close down
 	closesocket(sock);
 	WSACleanup();
+#endif
 
 	return 0;
 }
