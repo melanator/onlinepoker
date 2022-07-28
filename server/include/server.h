@@ -5,7 +5,6 @@
 */
 #include <iostream>
 #ifdef WIN_BUILD
-//#include <winsock.h>
 #include <WS2tcpip.h>
 #else
 #include <sys/types.h>
