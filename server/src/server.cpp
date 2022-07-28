@@ -21,7 +21,7 @@ int main() {
 
 	#else
 	// Initialize sock on Linux
-	#endif
+	#endif // WIN_BUILD
 
 	// Create a socket
 	SOCKET listening = socket(AF_INET, SOCK_STREAM, 0);
@@ -34,7 +34,7 @@ int main() {
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(54000);
-	hint.sin_addr.S_un.S_addr = INADDR_ANY;
+	hint.sin_addr.s_addr = INADDR_ANY;
 
 	bind(listening, (sockaddr*)&hint, sizeof(hint));
 
@@ -43,7 +43,13 @@ int main() {
 	sockaddr_in client;
 	int clientSize = sizeof(client);
 
-	SOCKET clientSocket = accept(listening, (sockaddr*)&client, &clientSize);
+	SOCKET clientSocket = accept(
+		listening, 
+		(sockaddr*)&client, 
+			#ifndef WIN_BIULD // Unix build size signature in socklen_t*, windows int*
+			(socklen_t*)
+			#endif	
+		&clientSize);
 	if (clientSocket == INVALID_SOCKET){
 		cout << "Failed client Socket";
 		return 3;
@@ -63,7 +69,12 @@ int main() {
 	}
 
 	// Close listening socket
+#ifdef WIN_BUILD
 	closesocket(listening);
+#else
+	close(listening);
+#endif // WIN_BUILD
+
 
 	// While loop: accept and echo back message to client
 	char buf[10];
@@ -90,9 +101,14 @@ int main() {
 		cout << endl;
 		send(clientSocket, buf, bytesRecieved + 1, 0);
 	}
-
+	
 	// Close the socket
+#ifdef WIN_BUILD
 	closesocket(clientSocket);
+#else
+	close(clientSocket);
+#endif // WIN_BUILD
+
 	
 	#ifdef WIN_BUILD
 	// Cleanup winsock
