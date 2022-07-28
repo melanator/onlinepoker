@@ -77,13 +77,13 @@ int main() {
 
 
 	// While loop: accept and echo back message to client
-	char buf[10];
+	char buf[4096];
 
 	while (true){
-		memset(buf, 0, 10);
+		memset(buf, 0, 4096);
 
 		// Wait for client to send data
-		int bytesRecieved = recv(clientSocket, buf, 10, 0);
+		int bytesRecieved = recv(clientSocket, buf, 4096, 0);
 		if (bytesRecieved == SOCKET_ERROR) {
 			cout << "Error in revc()" << endl;
 			break;
@@ -95,7 +95,7 @@ int main() {
 
 		// Echo message back to client
 		cout << "From " << host << " ";
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < 4096; i++){
 			cout << buf[i];
 		}
 		cout << endl;
@@ -105,17 +105,12 @@ int main() {
 	// Close the socket
 #ifdef WIN_BUILD
 	closesocket(clientSocket);
+	// Clean WSocket
+	WSACleanup();
 #else
 	close(clientSocket);
 #endif // WIN_BUILD
 
-	
-	#ifdef WIN_BUILD
-	// Cleanup winsock
-	WSACleanup();
-	#endif
 
-
-	cout << "Server" << endl;
 	return 0;
 }
