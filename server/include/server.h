@@ -4,6 +4,7 @@
 	https://beej.us/guide/bgnet/html/
 */
 #include <iostream>
+#include <string>
 #ifdef WIN_BUILD
 #include <WS2tcpip.h>
 #else
@@ -12,8 +13,17 @@
 #define SOCKET_ERROR -1
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <cstring>
 #include <unistd.h>
 #endif
+
+struct fork_struct{
+	sockaddr_in client;
+	SOCKET clientSocket;
+};
+
+
+int socket_handling(SOCKET clientSocket, sockaddr_in* client);
