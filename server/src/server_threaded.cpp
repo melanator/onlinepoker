@@ -14,9 +14,9 @@ DWORD WINAPI ThreadFun(LPVOID lpParam){
 DWORD windows_fork(LPVOID lpParam){
 	fork_struct *params = static_cast<fork_struct*>(lpParam);
 
-	sockaddr_in *client = &(*params).client;
+	sockaddr_in *client = &params->client;
 	int clientSize = sizeof(client);
-	SOCKET clientSocket = (*params).clientSocket;
+	SOCKET clientSocket = params->clientSocket;
 
 	socket_handling(clientSocket, client);
 	
@@ -38,8 +38,8 @@ int socket_handling(SOCKET clientSocket, sockaddr_in *client){
 	if(getnameinfo((sockaddr*)client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0){
 		cout << host << " connected on port " << service << endl;
 	} else {
-		inet_ntop(AF_INET, &(*client).sin_addr, host, NI_MAXHOST);
-		cout << host << " connected on port " << ntohs((*client).sin_port) << endl;
+		inet_ntop(AF_INET, &client->sin_addr, host, NI_MAXHOST);
+		cout << host << " connected on port " << ntohs(client->sin_port) << endl;
 	}
 
 	char buf[4096];
@@ -53,7 +53,7 @@ int socket_handling(SOCKET clientSocket, sockaddr_in *client){
 			break;
 		}
 		if (bytesRecieved == 0){
-			cout << "Client  " << host << ":" << ntohs((*client).sin_port) <<  " disconneted" << endl;
+			cout << "Client  " << host << ":" << ntohs(client->sin_port) <<  " disconneted" << endl;
 			break;
 		}
 
