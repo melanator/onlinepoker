@@ -8,14 +8,15 @@ namespace Poker {
 	enum class value {Two=2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace};
 
 	struct Card {
-		suit _suit;
-		value _value;
+		suit suit;
+		value value;
 	};
 
 	class Deck {
 	public:	
 		Deck();
 		const Card& Deal();
+		void Burn();
 
 	private:
 		void Shuffle();
