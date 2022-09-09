@@ -2,27 +2,12 @@
 
 using namespace Poker;
 
-Deck::Deck()
-{
-	Shuffle();
-}
-
-const Card& Deck::Deal()
-{	
-	return deck_[current_card++];
-}
-
 void Deck::Shuffle()
 {
 	std::random_device rd;
 	auto rng = std::default_random_engine{rd()};
 	std::shuffle(std::begin(deck_), std::end(deck_), rng);
 }
-
-void Deck::Burn(){
-	current_card++;
-}
-
 std::ostream& operator<<(std::ostream& os, const Card& card){
 	switch (card.value){
 	case value::Jack:

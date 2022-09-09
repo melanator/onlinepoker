@@ -1,3 +1,4 @@
+#include <array>
 #include <vector>
 #include <algorithm>
 #include <random>
@@ -14,14 +15,13 @@ namespace Poker {
 
 	class Deck {
 	public:	
-		Deck();
-		const Card& Deal();
-		void Burn();
+		Deck() { Shuffle(); };
+		const Card& Deal() { return deck_[current_card++]; }
+		void Burn() { current_card++; }
 
 	private:
 		void Shuffle();
 		std::vector<Card> deck_  {
-
 			{suit::Spades, value::Two},
 			{suit::Spades, value::Three},
 			{suit::Spades, value::Four},
@@ -78,5 +78,29 @@ namespace Poker {
 		size_t current_card = 0;
 	};
 
-	class Hand;
+	struct CardHand{
+		Card& lcard;
+		Card& rcard;
+	};
+
+	class Player{
+	public:
+		Player();
+	private:
+		CardHand hand;
+		int money;
+		int position; 		// Player position at table
+		bool in_play = true;
+	};
+
+	class PlayHand{
+	public:
+		PlayHand();
+		const Card& DealCard(const Card& card);
+	private:
+		std::vector<Player*> players;
+		std::array<Card, 5> dealt_cards;
+		size_t current_card = 0;
+		int bank;
+	};
 }
