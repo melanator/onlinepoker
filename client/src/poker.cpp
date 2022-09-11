@@ -65,14 +65,14 @@ void Player::Trade() {
 
 action Player::ReadAction(const std::string& decision) {
 	if (decision[0] == 'F') {
-		in_play == false;
-		action == action::Fold;
+		in_play = false;
+		action = action::Fold;
 	}
 	else if(decision[0] == 'C') {
-		action == action::Call;
+		action = action::Call;
 	}
 	else if(decision[0] == 'R') {
-		action == action::Raise;
+		action = action::Raise;
 	}
 	return action;
 }
@@ -109,6 +109,31 @@ void PlayHand::TradeRound() {
 	}
 }
 
+void PlayHand::NewRound(const int new_blind) {
+	// Algorithm for each new hand
+	
+	if (new_blind) {
+		blind_size = new_blind;
+	}
+
+	deck = Deck{};	// New instance of deck with shuffled card
+	// Assign positions 
+	ActivatePlayers(); // Activate players
+	// Take blinds
+}
+
+void PlayHand::ActivatePlayers() {
+	players_ingame = 0;
+	for (auto player : players) {
+		if (player->GetMoney() > 0) {
+			player->SetStatus(true);
+			players_ingame++;
+		}
+	}
+	players_total = players.size();
+}
+
+
 int main() {
 	Player player1("Ivan", 1000);
 	Player player2("Petr", 1000);
@@ -116,14 +141,12 @@ int main() {
 	PlayHand playhand(5);
 	playhand.AddPlayer(player1);
 	playhand.AddPlayer(player2);
+	playhand.NewRound();
 	playhand.DealToPlayers();
 	playhand.DealOnTable();
 	
 	std::cout << player1.name << " " << player1.ShowCards() << std::endl 
 		      << player2.name << " " << player2.ShowCards() << std::endl;
 	
-
 }
-
-
 

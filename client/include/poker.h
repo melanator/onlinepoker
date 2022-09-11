@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "table.h"
 
 #define START_BANK 1000
 
@@ -92,13 +93,17 @@ namespace Poker {
 		std::string ShowCards();
 		void Trade();
 		const std::string name;
+		void SetPosition(int pos) { position = pos; }
+		void SetStatus(bool status) { in_play = status; }
+		const int GetMoney() const { return money; }
 		
 	private:
 		action ReadAction(const std::string& decision);
 		action action;
 		std::array<Card, 2> hand;
 		int money = START_BANK;
-		bool in_play = true;
+		bool in_play = false;
+		int position;
 	};
 
 	class PlayHand{
@@ -110,6 +115,9 @@ namespace Poker {
 		void AddPlayer(Player& player);
 		void ChangeStage();
 		void TradeRound();
+		void NewRound(const int new_blind = 0);
+		void FinishHand();
+		void ActivatePlayers();
 
 	private:
 		std::vector<Player*> players;
@@ -118,6 +126,8 @@ namespace Poker {
 		int bank = 0;
 		stage stage = stage::Preflop;
 		int blind_size;		// small blind
+		int players_total;
+		int players_ingame;
 		Deck deck;
 	};
 
