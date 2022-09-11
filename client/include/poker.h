@@ -3,10 +3,16 @@
 #include <algorithm>
 #include <random>
 #include <iostream>
+#include <sstream>
+#include <string>
+
+#define START_BANK 1000
 
 namespace Poker {
 	enum class suit {Spades, Clubs, Hearts, Diamonds};
 	enum class value {Two=2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace};
+	enum class stage {Preflop, Flop, Turn, River};
+	enum class action {Fold, Call, Raise};
 
 	struct Card {
 		suit suit;
@@ -78,29 +84,41 @@ namespace Poker {
 		size_t current_card = 0;
 	};
 
-	struct CardHand{
-		Card& lcard;
-		Card& rcard;
-	};
-
 	class Player{
 	public:
-		Player();
+		Player(): name("blank"){}
+		Player(const std::string& name_, int money_) : name(name_), money(money_) {}
+		void GetCards(const Card& lcard, const Card& rcard);
+		std::string ShowCards();
+		void Trade();
+		const std::string name;
+		
 	private:
-		CardHand hand;
-		int money;
-		int position; 		// Player position at table
+		action ReadAction(const std::string& decision);
+		action action;
+		std::array<Card, 2> hand;
+		int money = START_BANK;
 		bool in_play = true;
 	};
 
 	class PlayHand{
 	public:
 		PlayHand();
-		const Card& DealCard(const Card& card);
+		PlayHand(int blind) : blind_size(blind) {}
+		void DealOnTable();
+		void DealToPlayers();
+		void AddPlayer(Player& player);
+		void ChangeStage();
+		void TradeRound();
+
 	private:
 		std::vector<Player*> players;
 		std::array<Card, 5> dealt_cards;
 		size_t current_card = 0;
-		int bank;
+		int bank = 0;
+		stage stage = stage::Preflop;
+		int blind_size;		// small blind
+		Deck deck;
 	};
+
 }
