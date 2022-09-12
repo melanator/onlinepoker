@@ -66,12 +66,26 @@ public:
 	}
 
 	void push_back(Type val) {
-		this->operator[](size - 1).next = new Node({ new Type(val), first});
-		size++;
+		if (size == 0) {
+			first = new Node({ ptr, nullptr });
+			first->next = first;
+			size = 1;
+		}
+		else {
+			this->operator[](size - 1).next = new Node({ new Type(val), first });
+			size++;
+		}
 	}
 	void push_back(Type* ptr) {
-		this->operator[](size - 1).next = new Node({ ptr, first });
-		size++;
+		if (size == 0) {
+			first = new Node({ ptr, nullptr });
+			first->next = first;
+			size = 1;
+		}
+		else {
+			this->operator[](size - 1).next = new Node({ ptr, first });
+			size++;
+		}
 	}
 
 	void push(Type val, size_t pos) {

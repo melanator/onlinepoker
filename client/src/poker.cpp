@@ -79,8 +79,8 @@ action Player::ReadAction(const std::string& decision) {
 
 PlayHand::PlayHand(){}
 
-void PlayHand::AddPlayer(Player& player) {
-	players.push_back(&player);
+void PlayHand::AddPlayer(Player* player) {
+	players.push_back(player);
 }
 
 void PlayHand::DealOnTable() {
@@ -98,14 +98,14 @@ void PlayHand::DealOnTable() {
 }
 
 void PlayHand::DealToPlayers() {
-	for (auto player : players) {
-		player->GetCards(deck.Deal(), deck.Deal());
+	for (int i = 0; i < players.size; i++) {
+		players[i].val->GetCards(deck.Deal(), deck.Deal());
 	}
 }
 
 void PlayHand::TradeRound() {
-	for (auto player : players) {
-		player->Trade();
+	for (int i = 0; i < players.size; i++) {
+		players[i].val->Trade();
 	}
 }
 
@@ -124,29 +124,36 @@ void PlayHand::NewRound(const int new_blind) {
 
 void PlayHand::ActivatePlayers() {
 	players_ingame = 0;
-	for (auto player : players) {
-		if (player->GetMoney() > 0) {
-			player->SetStatus(true);
+	for (int i = 0; i < players.size; i++) {
+		if (players[i].val->GetMoney() > 0) {
+			players[i].val->SetStatus(true);
 			players_ingame++;
 		}
 	}
-	players_total = players.size();
+	players_total = players.size;
 }
 
 
 int main() {
-	Player player1("Ivan", 1000);
-	Player player2("Petr", 1000);
+	Player* player1 = new Player("Ivan", 1000);
+	Player* player2 = new Player("Petr", 1000);
+	Player* player3 = new Player("Sergey", 1000);
+	Player* player4 = new Player("Dmitriy", 1000);
+	
 
 	PlayHand playhand(5);
 	playhand.AddPlayer(player1);
 	playhand.AddPlayer(player2);
+	playhand.AddPlayer(player3);
+	playhand.AddPlayer(player4);
 	playhand.NewRound();
 	playhand.DealToPlayers();
 	playhand.DealOnTable();
 	
-	std::cout << player1.name << " " << player1.ShowCards() << std::endl 
-		      << player2.name << " " << player2.ShowCards() << std::endl;
+	std::cout << player1->name << " " << player1->ShowCards() << std::endl
+		<< player2->name << " " << player2->ShowCards() << std::endl
+		<< player3->name << " " << player3->ShowCards() << std::endl
+		<< player4->name << " " << player4->ShowCards() << std::endl;
 	
 }
 

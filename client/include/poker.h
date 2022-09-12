@@ -112,7 +112,7 @@ namespace Poker {
 		PlayHand(int blind) : blind_size(blind) {}
 		void DealOnTable();
 		void DealToPlayers();
-		void AddPlayer(Player& player);
+		void AddPlayer(Player* player);
 		void ChangeStage();
 		void TradeRound();
 		void NewRound(const int new_blind = 0);
@@ -120,7 +120,7 @@ namespace Poker {
 		void ActivatePlayers();
 
 	private:
-		std::vector<Player*> players;
+		Table<Player> players;
 		std::array<Card, 5> dealt_cards;
 		size_t current_card = 0;
 		int bank = 0;
@@ -129,6 +129,17 @@ namespace Poker {
 		int players_total;
 		int players_ingame;
 		Deck deck;
+	};
+
+	class TradeStage {
+	public:
+		TradeStage(PlayHand* play_) { play = play_; }
+		virtual void Deal();
+		virtual void Trade();
+		virtual void Shove();
+
+	private:
+		PlayHand* play;
 	};
 
 }
