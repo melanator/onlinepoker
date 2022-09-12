@@ -9,8 +9,6 @@ public:
 		Type* val;
 		Node* next = nullptr;
 	};
-
-	Table(){};
 	Table(Type val) {
 		first = new Node({ new Type(val), nullptr });
 		first->next = first;
@@ -45,8 +43,26 @@ public:
 		size++;
 	}
 
-//	void push_back(Type node)
-//  void push(Node* node, size_t pos);
+	void push_back(Type val) {
+		this->operator[](size - 1).next = new Node({ new Type(val), first});
+		size++;
+	}
+	void push_back(Type* ptr) {
+		this->operator[](size - 1).next = new Node({ ptr, first });
+		size++;
+	}
+
+	void push(Type val, size_t pos) {
+		// Push after pos element
+		this->operator[](pos).next = new Node({ new Type(val), first});
+		size++;
+	}
+	void push(Type* ptr, size_t pos) {
+		// Push after pos element
+		this->operator[](pos).next = new Node({ ptr, first });
+		size++;
+	}
+
 //	Node pop_front();
 //	Node pop_back();
 //	Node pop(Type* elem);
@@ -67,6 +83,11 @@ public:
 		return *result;
 	}
 
+	friend std::ostream& operator<< (std::ostream& os, const Node& node) {
+		os << *(node.val);
+		return os;
+	}
+
 	Node* first;
 	size_t size;
 };
@@ -84,11 +105,5 @@ std::ostream& operator<< (std::ostream& os, Table<Type>& table) {
 		os << *(table.first->val);
 	}
 	
-	return os;
-}
-
-template <typename Type>
-std::ostream& operator<< (std::ostream& os, typename Table<Type>::Node& node) {
-	os << *(node.val);
 	return os;
 }
