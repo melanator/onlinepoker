@@ -95,6 +95,11 @@ TEST_F(TableTest, PopTestByValue) {
 
 }
 
+TEST_F(TableTest, TestEmptyTable) {
+    Table<int> table2;
+    EXPECT_EQ(table2.first, nullptr);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

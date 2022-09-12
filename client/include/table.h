@@ -9,6 +9,9 @@ public:
 		Type* val;
 		Node* next = nullptr;
 	};
+	Table() {
+		first = nullptr;
+	}
 	Table(Type val) {
 		first = new Node({ new Type(val), nullptr });
 		first->next = first;
@@ -21,26 +24,45 @@ public:
 	}
 
 	~Table() {
-		Node* first_elem = first;
-		do {
-			Node* tmp = first->next;
-			delete first->val;
-			delete first;
-			first = tmp;
-		} while (first_elem != first->next);
+		if (size == 0) {
+			return;
+		}
+		else {
+			Node* first_elem = first;
+			do {
+				Node* tmp = first->next;
+				delete first->val;
+				delete first;
+				first = tmp;
+			} while (first_elem != first->next);
+		}
 	}
 
 	void push_front(Type val) {
-		Node* tmp = first->next;
-		first->next = new Node({ new Type(val), nullptr });
-		first->next->next = tmp;
-		size++;
+		if (size == 0) {
+			first = new Node({ new Type(val), nullptr });
+			first->next = first;
+			size = 1;
+		}
+		else {
+			Node* tmp = first->next;
+			first->next = new Node({ new Type(val), nullptr });
+			first->next->next = tmp;
+			size++;
+		}
 	}
 	void push_front(Type* ptr){	
-		Node* tmp = first->next;
-		first->next = new Node({ ptr, nullptr });
-		first->next->next = tmp;
-		size++;
+		if (size == 0) {
+			first = new Node({ ptr, nullptr });
+			first->next = first;
+			size = 1;
+		}
+		else {
+			Node* tmp = first->next;
+			first->next = new Node({ ptr, nullptr });
+			first->next->next = tmp;
+			size++;
+		}
 	}
 
 	void push_back(Type val) {
@@ -99,6 +121,7 @@ public:
 				previous->next = search->next;
 				delete search;
 				size--;
+				return;
 			}
 			previous = search;
 			search = search->next;
@@ -144,7 +167,7 @@ public:
 	}
 
 	Node* first;
-	size_t size;
+	size_t size = 0;
 
 private:
 	void pop_last_element() {
