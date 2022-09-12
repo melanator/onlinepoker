@@ -63,13 +63,68 @@ public:
 		size++;
 	}
 
-//	Node pop_front();
-//	Node pop_back();
-//	Node pop(Type* elem);
-
-	void shift() {
-		first = first->next;
+	void pop_front() {
+		if (size == 1) {
+			pop_last_element();
+		}
+		else if (size == 0) {
+		}
+		else {
+			Node* tmp = first;
+			first = first->next;
+			size--;
+			this->operator[](size - 1).next = first;	// Last element to point to new first
+			delete tmp;
+		}
 	}
+	
+	void pop_back() {
+		if (size == 1) {
+			pop_last_element();
+		}
+		else if (size == 0) {
+		}
+		else {
+			delete &(this->operator[](size - 1));
+			size--;
+			this->operator[](size - 1).next = first;
+		}
+	}
+
+	void pop(Type* elem) {
+		Node* search = first;
+		Node* previous;
+		for (int i = 0; i < size; i++) {
+			if (search->val == elem) {
+				previous->next = search->next;
+				delete search;
+				size--;
+			}
+			previous = search;
+			search = search->next;
+		}
+		throw;
+	}
+
+	void pop(size_t pos) {
+		if (size == 1) {
+			pop_last_element();
+		}
+		else if (size == 0) {}
+		else {	
+			Node* tmp = &(this->operator[](pos));
+			this->operator[](pos-1).next = &(this->operator[](pos+1));
+			delete tmp;
+			size--;
+		}
+	}
+
+	void shift(size_t n = 1) {
+		for (int i = 0; i < n; i++) {
+			first = first->next;
+		}
+	}
+
 	const Node* GetFirst() const {
 		return first;
 	}
@@ -90,6 +145,21 @@ public:
 
 	Node* first;
 	size_t size;
+
+private:
+	void pop_last_element() {
+			delete first;
+			first = nullptr;
+			size = 0;
+	}
+
+	Node* GetNodePointer(size_t pos) {
+		Node* result = first;
+		for (int i = 0; i < pos; i++) {
+			result = first->next;
+		}
+		return result;
+	}
 };
 
 template <typename Type>
@@ -99,12 +169,12 @@ std::ostream& operator<< (std::ostream& os, Table<Type>& table) {
 		do {
 			std::cout << *(table.first->val) << " ";
 			table.first = table.first->next;
-		} while (first_elem != table.first);	
+		} while (first_elem != table.first);
 	}
 	else if (table.size == 1) {
 		os << *(table.first->val);
 	}
-	
+
 	return os;
 }
 
