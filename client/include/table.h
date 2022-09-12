@@ -95,7 +95,7 @@ public:
 template <typename Type>
 std::ostream& operator<< (std::ostream& os, Table<Type>& table) {
 	if (table.size > 1) {
-		const Table<Type>::Node* first_elem = table.first;
+		const typename Table<Type>::Node* first_elem = table.first;
 		do {
 			std::cout << *(table.first->val) << " ";
 			table.first = table.first->next;
@@ -107,3 +107,4 @@ std::ostream& operator<< (std::ostream& os, Table<Type>& table) {
 	
 	return os;
 }
+
