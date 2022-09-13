@@ -12,7 +12,7 @@
 namespace Poker {
 	enum class suit {Spades, Clubs, Hearts, Diamonds};
 	enum class value {Two=2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace};
-	enum class stage {Preflop, Flop, Turn, River};
+	enum class stage {Preflop, Flop, Turn, River, Final};
 	enum class action {NoAction, Fold, Call, Raise};
 
 	struct Card {
@@ -97,14 +97,16 @@ namespace Poker {
 		Player(const std::string& name_, int money_) : name(name_), money(money_) {}
 		void GetCards(const Card& lcard, const Card& rcard);
 		std::string ShowCards();
-		int Trade(const int bank_size, const int bet);
+		Move Trade(const int bank_size, const int bet);
 		void Pay(const int amount);
 		const std::string name;
 		void SetStatus(bool status) { in_play = status; }
 		const int GetMoney() const { return money; }
+		void AddMoney(const int amount) { money += amount;  }
 		bool FinishedRound(const int high_bet);
 		void Reset();
 		const bool IsInPlay() { return in_play; }
+		const int GetBetThisHand() { return bet_this_hand; }
 		
 	private:
 		Move ReadAction(std::string& decision);
@@ -112,7 +114,7 @@ namespace Poker {
 		std::array<Card, 2> hand;
 		int money = START_BANK;
 		bool in_play = false;
-		int bet_round = 0;
+		int bet_this_hand = 0;
 
 
 	};
@@ -127,9 +129,14 @@ namespace Poker {
 		void ActivatePlayers();
 		void Round();
 		void ShowTable(const int cards);
+		void SetWinner(Player* player);
+		void FinishHand();
+		Player* FindWinner();
+		stage GetStage() { return stage; }
 
 	private:
 		Table<Player> players;
+		Player* winner;
 		std::array<Card, 5> dealt_cards;
 		size_t current_card = 0;
 		int bank = 0;
@@ -141,7 +148,6 @@ namespace Poker {
 		void Trade();
 		void TradePreflop();
 		void DealToPlayers();
-		void FinishHand();
 		void BetFromPlayer(Player* player, const int amount);
 		bool IsEndOfRound(const int high_bet);
 		void NewRound();

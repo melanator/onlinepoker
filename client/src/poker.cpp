@@ -47,7 +47,11 @@ stage operator++(stage& st, int) {
 		break;
 	case stage::Turn:
 		st = stage::River;
+		break;
 	case stage::River:
+		st = stage::Final;
+		break;
+	case stage::Final:
 		break;
 	}
 	return st;
@@ -71,21 +75,21 @@ std::string Player::ShowCards() {
 	return ss.str();
 }
 
-int Player::Trade(const int bank_size, const int bet) {
+Move Player::Trade(const int bank_size, const int to_bet) {
 	std::string decision;
-	int bet_this_round = bet - bet_round;
+	int bet_this_round = to_bet - bet_this_hand;
 
 	if (!in_play) {
-		return 0;
+		return { action::NoAction, 0 };
 	}
 
 	if (bet_this_round == 0 && action != action::NoAction) {
 		// Player bet and actioned already
 		std::cout << name << "already moved" << std::endl;
-		return 0;
+		return { action::NoAction, 0 };
 	}
 	else {
-		std::cout << "Bank: " << bank_size << ". Bet: " << bet << ". To bet:" << bet-bet_round << ". "
+		std::cout << "Bank: " << bank_size << ". Bet: " << to_bet << ". To bet: " << bet_this_round << ". Money: " << money << " "
 			<< name << ", your cards: " << ShowCards() << " Choose action : ";
 		std::cin >> decision;
 		Move move = ReadAction(decision);
@@ -94,16 +98,19 @@ int Player::Trade(const int bank_size, const int bet) {
 		case action::Fold:
 			in_play = false;
 			std::cout << name << " folds!" << std::endl;
-			return 0;
+			return move;
 		case action::Call:
 			move.bet = bet_this_round;
 			std::cout << name << " calls " << move.bet << "!" << std::endl;
 			Pay(move.bet);
-			return move.bet;
+			return move;
 		case action::Raise:
+			move.bet -= bet_this_hand;
 			Pay(move.bet);
-			std::cout << name << " raises " << move.bet << "!" << std::endl;
-			return move.bet;
+			std::cout << name << "  raises to " << move.bet << "!" << std::endl;
+			return move;
+		default:
+			return { action::NoAction, 0 };
 		}
 	}
 
@@ -136,16 +143,16 @@ START:
 
 void Player::Pay(const int amount) {
 	money -= amount;
-	bet_round += amount;
+	bet_this_hand += amount;
 }
 
 bool Player::FinishedRound(const int high_bet) {
-	return !(high_bet - bet_round) && (action != action::NoAction);
+	return !(high_bet - bet_this_hand) && (action != action::NoAction);
 }
 
 void Player::Reset() {
 	action = action::NoAction;
-	bet_round = 0;
+	bet_this_hand = 0;
 }
 
 PlayHand::PlayHand(){}
@@ -207,6 +214,8 @@ void PlayHand::Round() {
 	case stage::Preflop:
 		DealToPlayers();
 		Trade();
+		if (stage == stage::Final)
+			break;
 		stage++;
 	    DealOnTable();
 		ShowTable(3);
@@ -214,6 +223,8 @@ void PlayHand::Round() {
 	case stage::Flop:
 		NewRound();
 		Trade();
+		if (stage == stage::Final)
+			break;
 		stage++;
 		DealOnTable();
 		ShowTable(4);
@@ -221,6 +232,8 @@ void PlayHand::Round() {
 	case stage::Turn:
 		NewRound();
 		Trade();
+		if (stage == stage::Final)
+			break;
 		stage++;
 		DealOnTable();
 		ShowTable(5);
@@ -228,29 +241,15 @@ void PlayHand::Round() {
 	case stage::River:
 		NewRound();
 		Trade();
+		if (stage == stage::Final)
+			break;
+		stage++;
+		winner = FindWinner();
+		break;
+	case stage::Final:
 		break;
 	}
 }
-
-void PlayHand::TradePreflop() {
-	BetFromPlayer(players[0].val, blind_size);			// Small blind
-	BetFromPlayer(players[1].val, blind_size * 2);		// Big blind
-	int bet = blind_size * 2;
-	int high_bet = bet;
-	int current_player = 2;
-	int player_bet = 0;
-	while (true) {
-		player_bet = players[current_player].val->Trade(bank, high_bet);
-		bank += player_bet;
-		if (player_bet > high_bet)
-			high_bet = player_bet;
-
-		if (current_player++ > players.size && IsEndOfRound(high_bet)) {
-			break;
-		}
-	}
-}
-
 
 void PlayHand::Trade() {
 	int bet = 0;
@@ -263,19 +262,42 @@ void PlayHand::Trade() {
 		bet = blind_size * 2;
 		current_player = 2;
 	}
-	while (true) {
-		player_bet = players[current_player].val->Trade(bank, bet);
-		bank += player_bet;
-		if (player_bet > bet)
-			bet = player_bet;
-
-		if (++current_player > players.size && IsEndOfRound(bet)) {
-			break;
+	while (current_player < players.size || !IsEndOfRound(bet)) {
+		if (players_ingame == 1){
+			// The only player left -> End hand
+			stage = stage::Final;
+			SetWinner(players[current_player].val);
+			return;
 		}
+
+		Move player_move = players[current_player].val->Trade(bank, bet);
+		player_bet = player_move.bet;
+		bank += player_bet;
+
+		if (player_move.act == action::Fold)
+			players_ingame--;
+
+		if (players[current_player].val->GetBetThisHand() > bet)
+			bet = players[current_player].val->GetBetThisHand();
+
+		current_player++;
 	}
 }
 
+Player* PlayHand::FindWinner() {
+	return players[0].val;
+}
+
+void PlayHand::FinishHand() {
+	std::cout << winner->name << " won the round" << std::endl;
+	winner->AddMoney(bank);
+	std::cout << "Bank: " << bank << " -> " << winner->name << "'s money: " << winner->GetMoney() << std::endl;
+}
+
 bool PlayHand::IsEndOfRound(const int high_bet) {
+	if (players_ingame == 0)
+		return true;
+
 	bool is_end = true;
 	for (int i = 0; i < players.size; i++) {
 		// (0 to bet and Actioned) OR not in play
@@ -306,6 +328,10 @@ void PlayHand::NewRound() {
 	}
 }
 
+void PlayHand::SetWinner(Player* player) {
+	winner = player;
+}
+
 int main() {
 	Player* player1 = new Player("Ivan", 1000);
 	Player* player2 = new Player("Petr", 1000);
@@ -319,11 +345,10 @@ int main() {
 	playhand.AddPlayer(player3);
 	playhand.AddPlayer(player4);
 	playhand.NewHand();
-	playhand.Round();
-	playhand.Round();
-	playhand.Round();
-	playhand.Round();
-	
+	while (playhand.GetStage() != stage::Final)
+		playhand.Round();
+	playhand.FinishHand();
+
 	
 	std::cout << player1->name << " " << player1->ShowCards() << std::endl
 		<< player2->name << " " << player2->ShowCards() << std::endl
