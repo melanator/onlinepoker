@@ -13,12 +13,18 @@ namespace Poker {
 	enum class suit {Spades, Clubs, Hearts, Diamonds};
 	enum class value {Two=2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace};
 	enum class stage {Preflop, Flop, Turn, River};
-	enum class action {Fold, Call, Raise};
+	enum class action {NoAction, Fold, Call, Raise};
 
 	struct Card {
 		suit suit;
 		value value;
+	};	
+	
+	struct Move {
+		action act;
+		int bet;
 	};
+
 
 	class Deck {
 	public:	
@@ -91,33 +97,36 @@ namespace Poker {
 		Player(const std::string& name_, int money_) : name(name_), money(money_) {}
 		void GetCards(const Card& lcard, const Card& rcard);
 		std::string ShowCards();
-		void Trade();
+		int Trade(const int bank_size, const int bet);
+		void Pay(const int amount);
 		const std::string name;
-		void SetPosition(int pos) { position = pos; }
 		void SetStatus(bool status) { in_play = status; }
 		const int GetMoney() const { return money; }
+		bool FinishedRound(const int high_bet);
+		void Reset();
+		const bool IsInPlay() { return in_play; }
 		
 	private:
-		action ReadAction(const std::string& decision);
-		action action;
+		Move ReadAction(std::string& decision);
+		action action = action::NoAction;
 		std::array<Card, 2> hand;
 		int money = START_BANK;
 		bool in_play = false;
-		int position;
+		int bet_round = 0;
+
+
 	};
 
 	class PlayHand{
 	public:
 		PlayHand();
 		PlayHand(int blind) : blind_size(blind) {}
+		void NewHand(const int new_blind = 0);
 		void DealOnTable();
-		void DealToPlayers();
 		void AddPlayer(Player* player);
-		void ChangeStage();
-		void TradeRound();
-		void NewRound(const int new_blind = 0);
-		void FinishHand();
 		void ActivatePlayers();
+		void Round();
+		void ShowTable(const int cards);
 
 	private:
 		Table<Player> players;
@@ -126,20 +135,18 @@ namespace Poker {
 		int bank = 0;
 		stage stage = stage::Preflop;
 		int blind_size;		// small blind
-		int players_total;
 		int players_ingame;
 		Deck deck;
+		
+		void Trade();
+		void TradePreflop();
+		void DealToPlayers();
+		void FinishHand();
+		void BetFromPlayer(Player* player, const int amount);
+		bool IsEndOfRound(const int high_bet);
+		void NewRound();
 	};
 
-	class TradeStage {
-	public:
-		TradeStage(PlayHand* play_) { play = play_; }
-		virtual void Deal();
-		virtual void Trade();
-		virtual void Shove();
 
-	private:
-		PlayHand* play;
-	};
 
 }
