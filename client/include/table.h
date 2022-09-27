@@ -67,7 +67,7 @@ public:
 
 	void push_back(Type val) {
 		if (size == 0) {
-			first = new Node({ ptr, nullptr });
+			first = new Node({ val, nullptr });
 			first->next = first;
 			size = 1;
 		}
