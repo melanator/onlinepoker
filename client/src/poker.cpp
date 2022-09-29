@@ -188,10 +188,11 @@ void PlayHand::NewHand(const int new_blind) {
 		blind_size = new_blind;
 	}
 
-	deck = Deck{};		// New instance of deck with shuffled card
-	players.shift();	// Assign positions 
-	ActivatePlayers();	// Activate players
-	// Take blinds
+	deck = Deck{};			// New instance of deck with shuffled card
+	players.shift();		// Assign positions 
+	ActivatePlayers();		// Activate players
+	stage = stage::Preflop;	// Refresh stage
+	bank = 0;				// Null the bank
 }
 
 void PlayHand::ActivatePlayers() {
@@ -344,10 +345,12 @@ int main() {
 	playhand.AddPlayer(player2);
 	playhand.AddPlayer(player3);
 	playhand.AddPlayer(player4);
-	playhand.NewHand();
-	while (playhand.GetStage() != stage::Final)
-		playhand.Round();
+	while (true) {
+		playhand.NewHand();
+		while (playhand.GetStage() != stage::Final)
+			playhand.Round();
 	playhand.FinishHand();
+	}
 
 	
 	std::cout << player1->name << " " << player1->ShowCards() << std::endl
