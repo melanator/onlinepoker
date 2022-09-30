@@ -14,6 +14,7 @@ namespace Poker {
 	enum class value {Two=2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace};
 	enum class stage {Preflop, Flop, Turn, River, Final};
 	enum class action {NoAction, Fold, Call, Raise};
+	enum class rank {HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush};
 
 	struct Card {
 		suit suit;
@@ -105,8 +106,8 @@ namespace Poker {
 		void AddMoney(const int amount) { money += amount;  }
 		bool FinishedRound(const int high_bet);
 		void Reset();
-		const bool IsInPlay() { return in_play; }
-		const int GetBetThisHand() { return bet_this_hand; }
+		const bool IsInPlay() const { return in_play; }
+		const int GetBetThisHand() const { return bet_this_hand; }
 		
 	private:
 		Move ReadAction(std::string& decision);
@@ -115,8 +116,7 @@ namespace Poker {
 		int money = START_BANK;
 		bool in_play = false;
 		int bet_this_hand = 0;
-
-
+		rank rank = rank::HighCard;
 	};
 
 	class PlayHand{
@@ -125,14 +125,14 @@ namespace Poker {
 		PlayHand(int blind) : blind_size(blind) {}
 		void NewHand(const int new_blind = 0);
 		void DealOnTable();
-		void AddPlayer(Player* player);
+		PlayHand& AddPlayer(Player* player);
 		void ActivatePlayers();
 		void Round();
 		void ShowTable(const int cards);
 		void SetWinner(Player* player);
 		void FinishHand();
 		Player* FindWinner();
-		stage GetStage() { return stage; }
+		stage GetStage() const { return stage; }
 
 	private:
 		Table<Player> players;
@@ -152,7 +152,5 @@ namespace Poker {
 		bool IsEndOfRound(const int high_bet);
 		void NewRound();
 	};
-
-
 
 }

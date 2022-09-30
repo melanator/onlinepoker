@@ -157,8 +157,9 @@ void Player::Reset() {
 
 PlayHand::PlayHand(){}
 
-void PlayHand::AddPlayer(Player* player) {
+PlayHand& PlayHand::AddPlayer(Player* player) {
 	players.push_back(player);
+	return *this;
 }
 
 void PlayHand::DealOnTable() {
@@ -341,15 +342,12 @@ int main() {
 	
 
 	PlayHand playhand(5);
-	playhand.AddPlayer(player1);
-	playhand.AddPlayer(player2);
-	playhand.AddPlayer(player3);
-	playhand.AddPlayer(player4);
+	playhand.AddPlayer(player1).AddPlayer(player2).AddPlayer(player3).AddPlayer(player4);
 	while (true) {
 		playhand.NewHand();
 		while (playhand.GetStage() != stage::Final)
 			playhand.Round();
-	playhand.FinishHand();
+		playhand.FinishHand();
 	}
 
 	
