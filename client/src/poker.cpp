@@ -1,4 +1,5 @@
 #include "../include/poker.h"
+#include <unordered_map>
 
 using namespace Poker;
 
@@ -194,6 +195,7 @@ void PlayHand::NewHand(const int new_blind) {
 	ActivatePlayers();		// Activate players
 	stage = stage::Preflop;	// Refresh stage
 	bank = 0;				// Null the bank
+	dealt_cards.Reset();	// Reset dealtcards
 }
 
 void PlayHand::ActivatePlayers() {
@@ -287,8 +289,28 @@ void PlayHand::Trade() {
 }
 
 Player* PlayHand::FindWinner() {
+	//for(int i = 0; i < players.size, i++){
+	//	Evaluate(players[i].val->hand[0], players[i].val->hand[1]);
+	//}
 	return players[0].val;
 }
+
+int DealtCards::Evaluate(Player& player){
+	Card all_cards[] = {cards[0], cards[1], cards[2], cards[3], cards[4], player.hand[0], player.hand[1]};
+	std::unordered_map<value, int> hash_value; 	  	// Map to count values
+	std::unordered_map<suit, int> hash_suit;		// Map to count suits
+	for(int i = 0; i < open_cards; i++){
+		hash_value[cards[i].value]++;
+		hash_suit[cards[i].suit]++;
+	}
+	hash_value[player.hand[0].value]++;
+	hash_suit[player.hand[0].suit]++;
+	hash_value[player.hand[1].value]++;
+	hash_suit[player.hand[1].suit]++;
+	
+	return 0;
+}
+
 
 void PlayHand::FinishHand() {
 	std::cout << winner->name << " won the round" << std::endl;
@@ -334,6 +356,20 @@ void PlayHand::SetWinner(Player* player) {
 	winner = player;
 }
 
+DealtCards::DealtCards(Card* cards_, int count): open_cards(count){
+	for (int i = 0; i < count; i++)
+		cards[i] = cards_[i];
+}
+
+void DealtCards::Reset(){
+	open_cards = 0;
+}
+
+void DealtCards::Deal(Card card){
+	cards[open_cards] = card;
+	open_cards++;
+}
+#if 0
 int main() {
 	Player* player1 = new Player("Ivan", 1000);
 	Player* player2 = new Player("Petr", 1000);
@@ -357,4 +393,6 @@ int main() {
 		<< player4->name << " " << player4->ShowCards() << std::endl;
 	
 }
+
+#endif
 
