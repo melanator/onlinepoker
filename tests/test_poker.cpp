@@ -50,5 +50,5 @@ TEST_F(EvaluateTest, Test){
     player2.hand[0] = {suit::Clubs, value::Ace};
     player2.hand[1] = {suit::Clubs, value::Queen};
 
-    cards.Evaluate(player1);
+    EXPECT_EQ(cards.Evaluate(), 0); // 3014 Flush - 3000, Ace - 14;
 }

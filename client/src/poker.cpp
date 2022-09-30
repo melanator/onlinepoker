@@ -295,20 +295,34 @@ Player* PlayHand::FindWinner() {
 	return players[0].val;
 }
 
-int DealtCards::Evaluate(Player& player){
-	Card all_cards[] = {cards[0], cards[1], cards[2], cards[3], cards[4], player.hand[0], player.hand[1]};
+int DealtCards::Evaluate(){
+	int rank = 0;
+
+	std::array<Card, 5> all_cards = {cards[0], cards[1], cards[2], cards[3], cards[4]};
+	std::sort(std::begin(all_cards), std::end(all_cards));
+
 	std::unordered_map<value, int> hash_value; 	  	// Map to count values
 	std::unordered_map<suit, int> hash_suit;		// Map to count suits
-	for(int i = 0; i < open_cards; i++){
-		hash_value[cards[i].value]++;
-		hash_suit[cards[i].suit]++;
+	for(int i = 0; i < all_cards.size(); i++){
+		hash_value[all_cards[i].value]++;
+		hash_suit[all_cards[i].suit]++;
 	}
-	hash_value[player.hand[0].value]++;
-	hash_suit[player.hand[0].suit]++;
-	hash_value[player.hand[1].value]++;
-	hash_suit[player.hand[1].suit]++;
-	
-	return 0;
+
+	for(auto& it: hash_suit){
+		if(it.second >= 5){ 						// Check flush and straightflush
+			suit flush_suit = it.first;
+			rank = (int) rank::Flush;
+			value high_card = value::Two;
+
+			for(Card& card: all_cards){
+				if (card.suit == flush_suit)
+					high_card = card.value;
+			}
+			rank += (int) high_card;
+		}
+	}	
+
+	return rank;
 }
 
 
@@ -358,7 +372,7 @@ void PlayHand::SetWinner(Player* player) {
 
 DealtCards::DealtCards(Card* cards_, int count): open_cards(count){
 	for (int i = 0; i < count; i++)
-		cards[i] = cards_[i];
+		cards.push_back(cards_[i]);
 }
 
 void DealtCards::Reset(){
@@ -366,10 +380,10 @@ void DealtCards::Reset(){
 }
 
 void DealtCards::Deal(Card card){
-	cards[open_cards] = card;
-	open_cards++;
+	cards[open_cards++] = card;
 }
-#if 0
+
+#if 1
 int main() {
 	Player* player1 = new Player("Ivan", 1000);
 	Player* player2 = new Player("Petr", 1000);

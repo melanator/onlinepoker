@@ -19,14 +19,18 @@ namespace Poker {
 	struct Card {
 		suit suit;
 		value value;
+
+		friend bool operator<(const Card& l, const Card& r){
+			return (int) l.value < (int) r.value;
+		}
 	};	
+
+	bool operator<(const Card& l, const Card& r);
 	
 	struct Move {
 		action act;
 		int bet;
 	};
-
-
 
 	class Deck {
 	public:	
@@ -93,6 +97,20 @@ namespace Poker {
 		size_t current_card = 0;
 	};
 
+	class DealtCards{
+	public:
+		DealtCards(int count = 2): cards(count) {}
+		DealtCards(Card* cards, int count = 5);
+		void Reset();
+		void Deal(Card card);
+		int Evaluate();
+		Card& operator[](int index) { return cards[index]; };
+	
+	private:
+		std::vector<Card> cards;
+		int open_cards = 0;
+	};
+
 	class Player{
 	public:
 		Player(): name("blank"){}
@@ -109,7 +127,7 @@ namespace Poker {
 		void Reset();
 		const bool IsInPlay() const { return in_play; }
 		const int GetBetThisHand() const { return bet_this_hand; }
-		std::array<Card, 2> hand;	// Make private
+		DealtCards hand;	// Make private
 		
 	private:
 		Move ReadAction(std::string& decision);
@@ -121,20 +139,6 @@ namespace Poker {
 		int hand_power;
 	};
 
-	class DealtCards{
-	public:
-		DealtCards() {}
-		DealtCards(Card* cards, int count = 5);
-		void Reset();
-		void Deal(Card card);
-		int Evaluate(Player& player);
-		Card& operator[](int index) { return cards[index]; };
-	
-	private:
-		Card cards[5];
-		int open_cards = 0;
-		const int MAX_CARDS = 5;
-	};
 
 	class PlayHand{
 	public:
