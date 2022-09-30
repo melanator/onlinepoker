@@ -156,8 +156,6 @@ void Player::Reset() {
 	bet_this_hand = 0;
 }
 
-PlayHand::PlayHand(){}
-
 PlayHand& PlayHand::AddPlayer(Player* player) {
 	players.push_back(player);
 	return *this;

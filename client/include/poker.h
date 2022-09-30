@@ -142,8 +142,8 @@ namespace Poker {
 
 	class PlayHand{
 	public:
-		PlayHand();
-		PlayHand(int blind) : blind_size(blind) {}
+		PlayHand() : dealt_cards(5) {};
+		PlayHand(int blind) : dealt_cards(5), blind_size(blind) {}
 		void NewHand(const int new_blind = 0);
 		void DealOnTable();
 		PlayHand& AddPlayer(Player* player);
