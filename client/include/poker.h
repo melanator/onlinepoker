@@ -34,12 +34,12 @@ namespace Poker {
 
 	class Deck {
 	public:	
-		Deck() { Shuffle(); };
+		Deck(bool seed = false): is_seeded(seed) { Shuffle(); };
 		const Card& Deal() { return deck_[current_card++]; }
 		void Burn() { current_card++; }
+		void Shuffle();
 
 	private:
-		void Shuffle();
 		std::vector<Card> deck_  {
 			{suit::Spades, value::Two},
 			{suit::Spades, value::Three},
@@ -95,8 +95,9 @@ namespace Poker {
 			{suit::Diamonds, value::Ace}
 		};
 		size_t current_card = 0;
+		bool is_seeded;
 	};
-
+	
 	class DealtCards{
 	public:
 		DealtCards(int count = 2): cards(count) {}
@@ -154,6 +155,9 @@ namespace Poker {
 		void FinishHand();
 		Player* FindWinner();
 		stage GetStage() const { return stage; }
+	
+	protected:
+		Deck deck;
 
 	private:
 		Table<Player> players;
@@ -164,7 +168,6 @@ namespace Poker {
 		stage stage = stage::Preflop;
 		int blind_size;		// small blind
 		int players_ingame;
-		Deck deck;
 		
 		void Trade();
 		void TradePreflop();
@@ -172,5 +175,12 @@ namespace Poker {
 		void BetFromPlayer(Player* player, const int amount);
 		bool IsEndOfRound(const int high_bet);
 		void NewRound();
+	};
+	
+	class TestPlayHand : public PlayHand {
+	/* Class for testing poker with predetermined deck */
+	public:
+		TestPlayHand() : PlayHand(5) { deck = Deck(true); }
+		TestPlayHand(int blind) : PlayHand(blind) { deck = Deck(true); }
 	};
 }

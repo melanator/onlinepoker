@@ -61,7 +61,11 @@ stage operator++(stage& st, int) {
 void Deck::Shuffle()
 {
 	std::random_device rd;
-	auto rng = std::default_random_engine{rd()};
+	std::default_random_engine rng;
+	if (is_seeded)
+		rng = std::default_random_engine{1};		// 1 - seed
+	else
+		rng = std::default_random_engine{rd()};
 	std::shuffle(std::begin(deck_), std::end(deck_), rng);
 }
 
@@ -194,7 +198,7 @@ void PlayHand::NewHand(const int new_blind) {
 		blind_size = new_blind;
 	}
 
-	deck = Deck{};			// New instance of deck with shuffled card
+	deck.Shuffle();			// New instance of deck with shuffled card
 	players.shift();		// Assign positions 
 	ActivatePlayers();		// Activate players
 	stage = stage::Preflop;	// Refresh stage
