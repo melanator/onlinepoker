@@ -101,7 +101,7 @@ Move Player::Trade(const int bank_size, const int to_bet) {
 			std::cout << name << " folds!" << std::endl;
 			return move;
 		case action::Call:
-			move.bet = bet_this_round;
+			move.bet = money > bet_this_round ? bet_this_round : money;
 			std::cout << name << " calls " << move.bet << "!" << std::endl;
 			Pay(move.bet);
 			return move;
@@ -132,6 +132,12 @@ START:
 		int raise;
 		std::cout << "Type amount to bet: ";
 		std::cin >> raise;
+		if (raise > money) {
+			while (raise > money) {
+				std::cout << "You dont havew this much money. Please change bet size: ";
+				std::cin >> raise;
+			}
+		}
 		return { action, raise };
 	}
 	else {
@@ -163,14 +169,14 @@ PlayHand& PlayHand::AddPlayer(Player* player) {
 
 void PlayHand::DealOnTable() {
 	if (stage == stage::Flop) {
-		dealt_cards[0] = deck.Deal();
-		dealt_cards[1] = deck.Deal();
-		dealt_cards[2] = deck.Deal();
+		dealt_cards.Deal(deck.Deal());
+		dealt_cards.Deal(deck.Deal());
+		dealt_cards.Deal(deck.Deal());
 	}
 	else if (stage == stage::Turn)
-		dealt_cards[3] = deck.Deal();
+		dealt_cards.Deal(deck.Deal());
 	else if (stage == stage::River)
-		dealt_cards[4] = deck.Deal();
+		dealt_cards.Deal(deck.Deal());
 	else
 		std::cerr << "Wrong stage!";
 }
