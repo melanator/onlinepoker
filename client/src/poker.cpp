@@ -97,7 +97,7 @@ Move Player::Trade(const int bank_size, const int to_bet, std::istream& input) {
 		std::cout << "Bank: " << bank_size << ". Bet: " << to_bet << ". To bet: " << bet_this_round << ". Money: " << money << " "
 			<< name << ", your cards: " << ShowCards() << " Choose action : ";
 		input >> decision;
-		Move move = ReadAction(decision);
+		Move move = ReadAction(decision, input);
 
 		switch (action) {
 		case action::Fold:
@@ -138,8 +138,8 @@ START:
 		input >> raise;
 		if (raise > money) {
 			while (raise > money) {
-				std::cout << "You dont havew this much money. Please change bet size: ";
-				std::cin >> raise;
+				std::cout << "You dont have this much money. Please change bet size: ";
+				input >> raise;
 			}
 		}
 		return { action, raise };
@@ -278,7 +278,11 @@ void PlayHand::Trade() {
 		if (players_ingame == 1){
 			// The only player left -> End hand
 			stage = stage::Final;
-			SetWinner(players[current_player].val);
+			// Iterate overplayer to find one that is InGame()
+			for (int i = 0; i < players.size; i++) {
+				if (players[i].val->IsInPlay())
+					SetWinner(players[i].val);
+			}
 			return;
 		}
 
@@ -402,7 +406,8 @@ int main() {
 	Player* player4 = new Player("Dmitriy", 1000);
 	
 
-	PlayHand playhand(5);
+	PlayHand playhand;
+	playhand.SetBlind(5);
 	playhand.AddPlayer(player1).AddPlayer(player2).AddPlayer(player3).AddPlayer(player4);
 	while (true) {
 		playhand.NewHand();

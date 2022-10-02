@@ -153,13 +153,13 @@ namespace Poker {
 		void ShowTable(const int cards);
 		void SetWinner(Player* player);
 		void FinishHand();
+		int GetBank() const { return bank; }
+		Player* GetWinner() const { return winner; }
 		Player* FindWinner();
 		stage GetStage() const { return stage; }
 	
 	protected:
 		Deck deck;
-
-	protected:
 		std::istream& input = std::cin;
 
 	private:

@@ -17,11 +17,16 @@ protected:
     }
 
     TestPlayHand* playhand = new TestPlayHand(ss);
-    std::istringstream ss;
+    std::stringstream ss;
     Player* player1 = new Player("Ivan", 1000);
 	Player* player2 = new Player("Petr", 1000);
 	Player* player3 = new Player("Sergey", 1000);
 	Player* player4 = new Player("Dmitriy", 1000);
+    // Lazy to rename players, make new pointer
+    Player* ivan = player1;
+    Player* petr = player2;
+    Player* sergey = player3;
+    Player* dmitriy = player4;
 	
 };
 
@@ -60,12 +65,59 @@ TEST_F(EvaluateTest, Test){
 /*
 Need to add selection of stream to automate poker tests */ 
 
-TEST_F(PokerTest, TestSmth) {
-    ss = std::istringstream("F F F");
+TEST_F(PokerTest, InitialTest) {
+    ss = std::stringstream("F F F");
 
     playhand->NewHand();
 	while (playhand->GetStage() != stage::Final)
 		playhand->Round();
 	playhand->FinishHand();
 
+}
+
+TEST_F(PokerTest, RaiseBet) {
+    ss << "F F R 100 C C C R 300 F";
+    playhand->NewHand();
+	playhand->Round(); // Preflop
+    EXPECT_EQ(sergey->GetMoney(), 900);
+    EXPECT_EQ(petr->GetMoney(), 900);
+    EXPECT_EQ(ivan->GetMoney(), 1000);
+    EXPECT_EQ(playhand->GetBank(), 200);
+    playhand->Round();
+    EXPECT_EQ(playhand->GetBank(), 200);
+    playhand->Round();
+    EXPECT_EQ(playhand->GetBank(), 500);
+    playhand->FinishHand();
+    EXPECT_EQ(sergey->GetMoney(), 900);
+    EXPECT_EQ(petr->GetMoney(), 1100);
+    EXPECT_EQ(playhand->GetWinner()->name, petr->name);
+}
+
+TEST_F(PokerTest, RaiseTooMuch) {
+    ss << "F R 1500 1000 C F F";
+    playhand->NewHand();
+	playhand->Round(); // Preflokp
+    EXPECT_EQ(ivan->GetMoney(), 0);
+    EXPECT_EQ(petr->GetMoney(), 0);
+    EXPECT_EQ(playhand->GetBank(), 2010);
+	playhand->Round(); // Flop
+    playhand->FinishHand();
+    EXPECT_EQ(ivan->GetMoney(), 2010);
+    EXPECT_EQ(playhand->GetWinner()->name, ivan->name);
+}
+
+
+TEST_F(PokerTest, TestWholeHand) {
+    ss << "C C F C C C C C C C C C C C C C C";
+    playhand->NewHand();
+	playhand->Round();
+	playhand->Round();
+	playhand->Round();
+	playhand->Round();
+    playhand->FinishHand();
+    EXPECT_EQ(ivan->GetMoney(), 990);
+    EXPECT_EQ(sergey->GetMoney(), 990);
+    EXPECT_EQ(petr->GetMoney(), 995);
+    EXPECT_EQ(dmitriy->GetMoney(), 1025);
+    EXPECT_EQ(playhand->GetWinner()->name, dmitriy->name);
 }
