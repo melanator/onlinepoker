@@ -118,7 +118,7 @@ namespace Poker {
 		Player(const std::string& name_, int money_) : name(name_), money(money_) {}
 		void GetCards(const Card& lcard, const Card& rcard);
 		std::string ShowCards();
-		Move Trade(const int bank_size, const int bet);
+		Move Trade(const int bank_size, const int bet, std::istream& input = std::cin);
 		void Pay(const int amount);
 		const std::string name;
 		void SetStatus(bool status) { in_play = status; }
@@ -131,7 +131,7 @@ namespace Poker {
 		DealtCards hand;	// Make private
 		
 	private:
-		Move ReadAction(std::string& decision);
+		Move ReadAction(std::string& decision, std::istream& input = std::cin);
 		action action = action::NoAction;
 		int money = START_BANK;
 		bool in_play = false;
@@ -143,8 +143,8 @@ namespace Poker {
 
 	class PlayHand{
 	public:
-		PlayHand() : dealt_cards(5) {};
-		PlayHand(int blind) : dealt_cards(5), blind_size(blind) {}
+		PlayHand(std::istream& str = std::cin) : dealt_cards(5), input(str) {};
+		void SetBlind(const int blind);
 		void NewHand(const int new_blind = 0);
 		void DealOnTable();
 		PlayHand& AddPlayer(Player* player);
@@ -158,6 +158,9 @@ namespace Poker {
 	
 	protected:
 		Deck deck;
+
+	protected:
+		std::istream& input = std::cin;
 
 	private:
 		Table<Player> players;
@@ -180,7 +183,6 @@ namespace Poker {
 	class TestPlayHand : public PlayHand {
 	/* Class for testing poker with predetermined deck */
 	public:
-		TestPlayHand() : PlayHand(5) { deck = Deck(true); }
-		TestPlayHand(int blind) : PlayHand(blind) { deck = Deck(true); }
+		TestPlayHand(std::istream& str = std::cin) : PlayHand(str) { deck = Deck(true); }
 	};
 }

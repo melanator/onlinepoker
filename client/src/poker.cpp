@@ -80,7 +80,7 @@ std::string Player::ShowCards() {
 	return ss.str();
 }
 
-Move Player::Trade(const int bank_size, const int to_bet) {
+Move Player::Trade(const int bank_size, const int to_bet, std::istream& input) {
 	std::string decision;
 	int bet_this_round = to_bet - bet_this_hand;
 
@@ -96,7 +96,7 @@ Move Player::Trade(const int bank_size, const int to_bet) {
 	else {
 		std::cout << "Bank: " << bank_size << ". Bet: " << to_bet << ". To bet: " << bet_this_round << ". Money: " << money << " "
 			<< name << ", your cards: " << ShowCards() << " Choose action : ";
-		std::cin >> decision;
+		input >> decision;
 		Move move = ReadAction(decision);
 
 		switch (action) {
@@ -121,7 +121,7 @@ Move Player::Trade(const int bank_size, const int to_bet) {
 
 }
 
-Move Player::ReadAction(std::string& decision) {
+Move Player::ReadAction(std::string& decision, std::istream& input) {
 START:
 	if (decision[0] == 'F') {
 		action = action::Fold;
@@ -135,7 +135,7 @@ START:
 		action = action::Raise;
 		int raise;
 		std::cout << "Type amount to bet: ";
-		std::cin >> raise;
+		input >> raise;
 		if (raise > money) {
 			while (raise > money) {
 				std::cout << "You dont havew this much money. Please change bet size: ";
@@ -146,7 +146,7 @@ START:
 	}
 	else {
 		std::cout << "Wrong command. Please repeat";
-		std::cin >> decision;
+		input >> decision;
 		goto START;
 	}
 }
@@ -282,7 +282,7 @@ void PlayHand::Trade() {
 			return;
 		}
 
-		Move player_move = players[current_player].val->Trade(bank, bet);
+		Move player_move = players[current_player].val->Trade(bank, bet, input);
 		player_bet = player_move.bet;
 		bank += player_bet;
 
@@ -333,6 +333,9 @@ int DealtCards::Evaluate(){
 	return rank;
 }
 
+void PlayHand::SetBlind(const int blind) {
+	blind_size = blind;
+}
 
 void PlayHand::FinishHand() {
 	std::cout << winner->name << " won the round" << std::endl;
@@ -391,7 +394,7 @@ void DealtCards::Deal(Card card){
 	cards[open_cards++] = card;
 }
 
-#if 1
+#if 0
 int main() {
 	Player* player1 = new Player("Ivan", 1000);
 	Player* player2 = new Player("Petr", 1000);

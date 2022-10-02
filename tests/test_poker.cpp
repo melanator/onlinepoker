@@ -1,24 +1,28 @@
 #include <gtest/gtest.h>
 #include "../client/include/poker.h"
 #include <string>
-
+#include <sstream>
 
 using namespace Poker;
 
 class PokerTest : public testing::Test {
 protected:
     void SetUp(){
-        playhand.AddPlayer(player1).AddPlayer(player2);
+        playhand->SetBlind(5);
+		playhand->AddPlayer(player1).AddPlayer(player2).AddPlayer(player3).AddPlayer(player4);
     }
 
     void TearDown(){
-        delete player1;
-        delete player2;
+        delete playhand;
     }
 
-    PlayHand playhand;
+    TestPlayHand* playhand = new TestPlayHand(ss);
+    std::istringstream ss;
     Player* player1 = new Player("Ivan", 1000);
-    Player* player2 = new Player("Petr", 1000);
+	Player* player2 = new Player("Petr", 1000);
+	Player* player3 = new Player("Sergey", 1000);
+	Player* player4 = new Player("Dmitriy", 1000);
+	
 };
 
 TEST(TestDealtCards, Test){
@@ -31,7 +35,8 @@ TEST(TestDealtCards, Test){
 
 class EvaluateTest : public testing::Test {
 protected:
-    void SetUp(){    
+    void SetUp(){  
+        cards = DealtCards(5);
         cards.Deal({suit::Diamonds, value::Two});
         cards.Deal({suit::Clubs, value::Four});
         cards.Deal({suit::Diamonds, value::Seven});
@@ -51,4 +56,16 @@ TEST_F(EvaluateTest, Test){
     player2.hand[1] = {suit::Clubs, value::Queen};
 
     EXPECT_EQ(cards.Evaluate(), 0); // 3014 Flush - 3000, Ace - 14;
+}
+/*
+Need to add selection of stream to automate poker tests */ 
+
+TEST_F(PokerTest, TestSmth) {
+    ss = std::istringstream("F F F");
+
+    playhand->NewHand();
+	while (playhand->GetStage() != stage::Final)
+		playhand->Round();
+	playhand->FinishHand();
+
 }
