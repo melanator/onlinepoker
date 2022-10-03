@@ -100,7 +100,7 @@ namespace Poker {
 	
 	class DealtCards{
 	public:
-		DealtCards(int count = 2): cards(count) {}
+		DealtCards(int count = 5): cards(count) {}
 		DealtCards(Card* cards, int count = 5);
 		void Reset();
 		void Deal(Card card);
