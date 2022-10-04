@@ -387,18 +387,18 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 		}
 		else if (it.second == 3){
 			// Check for fullhouse
-			// SCORE = value*FullhouseRank + value*PairRank
+			value kicker_val = value::Two;
 			for(auto &fh: hash_value){
-				value kicker_val = value::Two;
+				value two_pairs_check = value::Two;
 				if(fh.second == 2){
-					result.combo_rank = rank::FullHouse;
-					result.combo_val = it.first;
+					highest_comb.combo_rank = rank::FullHouse;
+					highest_comb.combo_val = it.first;
 				
 					// For 7 cards, might be Trips and two pairs, so check for a higher rank
-					if (fh.first > kicker_val && fh.second < 3)
-						result.kicker[0] = fh.first;
+					if (fh.first > two_pairs_check && fh.second < 3)
+						highest_comb.kicker[0] = two_pairs_check = fh.first;
 
-					return result;
+					result = (result < highest_comb) ? highest_comb : result;
 				}
 				else if(fh.second == 3 && it.first != fh.first){
 					result.combo_rank = rank::FullHouse;
@@ -409,10 +409,12 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 				}
 				else {
 					// Just three
-					result.combo_rank = rank::ThreeOfAKind;
-					result.combo_val = it.first;
+					highest_comb.combo_rank = rank::ThreeOfAKind;
+					highest_comb.combo_val = it.first;
 					if (fh.first > kicker_val && fh.first != it.first)
-						kicker_val = result.kicker[0] = fh.first;
+						kicker_val = highest_comb.kicker[0] = fh.first;
+					
+					result = (result < highest_comb) ? highest_comb : result;
 				}
 			}
 		}
