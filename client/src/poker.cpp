@@ -70,8 +70,8 @@ void Deck::Shuffle()
 }
 
 void Player::GetCards(const Card& lcard, const Card& rcard) {
-	hand[0] = lcard;
-	hand[1] = rcard;
+	hand.Deal(lcard);
+	hand.Deal(rcard);
 }
 
 std::string Player::ShowCards() {
@@ -151,6 +151,9 @@ START:
 	}
 }
 
+void Player::Deal(const Card& card){
+	hand.Deal(card);
+}
 
 void Player::Pay(const int amount) {
 	money -= amount;
@@ -309,8 +312,7 @@ Player* PlayHand::FindWinner() {
 
 int DealtCards::Evaluate(){
 	int rank = 0;
-
-	std::array<Card, 5> all_cards = {cards[0], cards[1], cards[2], cards[3], cards[4]};
+	std::vector<Card> all_cards(cards);
 	std::sort(std::begin(all_cards), std::end(all_cards));
 
 	std::unordered_map<value, int> hash_value; 	  	// Map to count values

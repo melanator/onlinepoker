@@ -106,7 +106,24 @@ namespace Poker {
 		void Deal(Card card);
 		int Evaluate();
 		Card& operator[](int index) { return cards[index]; };
-	
+		Card operator[](int index) const { return cards[index]; }
+		DealtCards& operator+(const DealtCards& rhs){
+			for(int i = 0; i < rhs.open_cards; i++){
+				cards.push_back(rhs[i]);
+			}
+			open_cards += rhs.open_cards;
+			return *this;
+		}
+		friend DealtCards operator+(const DealtCards& lhs, const DealtCards& rhs){
+			DealtCards result;
+			for(int i = 0; i < lhs.open_cards; i++){
+				result.Deal(lhs[i]);
+			}
+			for(int i = 0; i < rhs.open_cards; i++){
+				result.Deal(rhs[i]);
+			}
+			return result;
+		}
 	private:
 		std::vector<Card> cards;
 		int open_cards = 0;
@@ -114,11 +131,13 @@ namespace Poker {
 
 	class Player{
 	public:
+		friend class PlayHand;
 		Player(): name("blank"){}
 		Player(const std::string& name_, int money_) : name(name_), money(money_) {}
 		void GetCards(const Card& lcard, const Card& rcard);
 		std::string ShowCards();
 		Move Trade(const int bank_size, const int bet, std::istream& input = std::cin);
+		void Deal(const Card& card);
 		void Pay(const int amount);
 		const std::string name;
 		void SetStatus(bool status) { in_play = status; }
@@ -128,11 +147,11 @@ namespace Poker {
 		void Reset();
 		const bool IsInPlay() const { return in_play; }
 		const int GetBetThisHand() const { return bet_this_hand; }
-		DealtCards hand;	// Make private
 		
 	private:
 		Move ReadAction(std::string& decision, std::istream& input = std::cin);
 		action action = action::NoAction;
+		DealtCards hand;	
 		int money = START_BANK;
 		bool in_play = false;
 		int bet_this_hand = 0;

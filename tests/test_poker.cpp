@@ -37,6 +37,17 @@ TEST(TestDealtCards, Test){
     EXPECT_EQ(cards[0].suit, card.suit);
 }
 
+TEST(TestDealCards, TestSum){
+    Card card_rand1[] = {{suit::Clubs, value::King}, {suit::Diamonds, value::King}};
+    Card card_rand2[] = {{suit::Clubs, value::Ace}, {suit::Diamonds, value::Ace}};
+    DealtCards cards1(card_rand1, 2);
+    DealtCards cards2(card_rand2, 2);
+    EXPECT_EQ(cards1[0].suit, suit::Clubs);
+    EXPECT_EQ(cards2[1].suit, suit::Diamonds);
+    DealtCards cards1_2 = cards1 + cards2;
+    EXPECT_EQ(cards1[2].value, value::Ace);
+}
+
 
 class EvaluateTest : public testing::Test {
 protected:
@@ -54,11 +65,12 @@ protected:
     Player player2;
 };
 
+
 TEST_F(EvaluateTest, Test){
-    player1.hand[0] = {suit::Diamonds, value::Ace};
-    player1.hand[1] = {suit::Diamonds, value::Queen};
-    player2.hand[0] = {suit::Clubs, value::Ace};
-    player2.hand[1] = {suit::Clubs, value::Queen};
+    player1.Deal({suit::Diamonds, value::Ace});
+    player1.Deal({suit::Diamonds, value::Queen});
+    player2.Deal({suit::Clubs, value::Ace});
+    player2.Deal({suit::Clubs, value::Queen});
 
     EXPECT_EQ(cards.Evaluate(), 0); // 3014 Flush - 3000, Ace - 14;
 }
