@@ -313,8 +313,8 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 	int used_cards = 0;
 	int rank = 0;
 	Combination result;
+	Combination highest_comb;
 
-	dealt.cards;
 	std::vector<Card> all_cards(dealt.cards);
 	std::sort(std::begin(all_cards), std::end(all_cards));
 
@@ -336,7 +336,7 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 			value high_card = value::Two;
 
 			for(Card& card: all_cards){
-				if (card.suit == flush_suit)
+				if (card.suit == flush_suit && card.value > result.combo_val)
 					result.combo_val = card.value;
 			}
 			return result;
@@ -345,37 +345,45 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 
 	for(auto &it: hash_value){
 		if(it.second == 2){
+			if (result.combo_rank > rank::TwoPairs)
+				continue;
+
 			// Check for pair
-			value high_card = value::Two;
 			value kicker_val = value::Two;
-			int temp_rank;
+			
+			highest_comb.combo_rank = rank::Pair;
+			highest_comb.combo_val = it.first;
+			highest_comb.kicker = value::Two;
 
 			for(auto &pair: hash_value){
 				// Check for two pairs
 				if(pair.second == 2 && it.first != pair.first){
-					int kicker_val;
+					highest_comb.combo_rank = rank::TwoPairs;
+					value kicker_val = value::Two;
 					
 					// Search higher kicker
 					for(auto &kicker: hash_value){
-						if (kicker.second < 2)
-							kicker_val = (int) kicker.first;
-					}
+						if (kicker.first != pair.first && kicker.first != it.first)
+							if (kicker.first > kicker_val)
+								kicker_val = kicker.first;
+					}	
 
-					temp_rank = ((int) it.first > (int) pair.first) 
-									? (int) it.first * (int) rank::TwoPairs + (int) pair.first * (int) rank::Pair + kicker_val
-									: (int) pair.first * (int) rank::TwoPairs + (int) it.first * (int) rank::Pair + kicker_val;
+					highest_comb.combo_val = (it.first > pair.first) ? it.first : pair.first;
+					highest_comb.kicker = (it.first > pair.first) ? pair.first : it.first;
 
-					rank = (temp_rank > rank) ? temp_rank : rank;	// If higher, refresh
+					result = (result < highest_comb) ? highest_comb : result;
 				}
-				else {
-					if((int) pair.first > (int) kicker_val){
-						kicker_val = pair.first;
-						high_card = pair.first;
+				else if (it.first != pair.first) {
+					if (result.combo_rank > rank::Pair)
+						continue;
+
+					if (pair.first > highest_comb.kicker) {
+						highest_comb.kicker = pair.first;
+						result = (result < highest_comb) ? highest_comb : result;
 					}
+
 				}
 			}
-			temp_rank = (int) it.first * (int) rank::Pair + (int) high_card;
-			rank = (temp_rank > rank) ? temp_rank : rank;	// If higher, refresh
 		}
 		else if (it.second == 3){
 			// Check for fullhouse
@@ -403,6 +411,8 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 					// Just three
 					result.combo_rank = rank::ThreeOfAKind;
 					result.combo_val = it.first;
+					if (fh.first > kicker_val && fh.first != it.first)
+						kicker_val = result.kicker = fh.first;
 				}
 			}
 		}
@@ -417,7 +427,14 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 			}
 			return result;			// The only combination, stop iterating
 		}
-		
+		else {
+			// Check is straight
+			highest_comb.combo_rank = rank::HighCard;
+			highest_comb.combo_val = it.first;
+			highest_comb.kicker = it.first;
+
+			result = (result < highest_comb) ? highest_comb : result;
+		}
 	}
 	return result;
 }

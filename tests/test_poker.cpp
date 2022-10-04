@@ -55,9 +55,9 @@ protected:
         cards = DealtCards(5);
         cards.Deal({suit::Diamonds, value::Two});
         cards.Deal({suit::Clubs, value::Four});
+        cards.Deal({suit::Diamonds, value::King});
         cards.Deal({suit::Diamonds, value::Seven});
         cards.Deal({suit::Spades, value::Jack});
-        cards.Deal({suit::Diamonds, value::King});
     }
 
     DealtCards cards;
@@ -72,9 +72,12 @@ TEST_F(EvaluateTestPlayers, TestFlush){
     player2.Deal({suit::Clubs, value::Ace});
     player2.Deal({suit::Clubs, value::Queen});
 
-    EXPECT_EQ(Evaluate(cards), 0); // 3014 Flush - 3000, Ace - 14;
-    EXPECT_EQ(Evaluate(cards+player1.hand), 3014);    // Flush with Ace
-    EXPECT_EQ(Evaluate(cards+player2.hand), 14);      // Ace high card
+    EXPECT_EQ(Evaluate(cards).combo_rank, rank::HighCard); // 3014 Flush - 3000, Ace - 14;
+    EXPECT_EQ(Evaluate(cards).combo_val, value::King);      // Ace high card
+    EXPECT_EQ(Evaluate(cards+player1.hand).combo_rank, rank::Flush);    // Flush with Ace
+    EXPECT_EQ(Evaluate(cards+player1.hand).combo_val, value::Ace);      // Ace high card
+    EXPECT_EQ(Evaluate(cards+player2.hand).combo_rank, rank::HighCard);      // Ace high card
+    EXPECT_EQ(Evaluate(cards+player2.hand).combo_val, value::Ace);      // Ace high card
 
 }
 
@@ -89,7 +92,10 @@ TEST(EvaluateTest, TestPair){
         cards.Deal({suit::Diamonds, value::Ace});
         cards.Deal({suit::Clubs, value::Two});
         // A A Q (14 * 10 + 12) = 152
-        EXPECT_EQ(Evaluate(cards), 12);
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::Pair);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
+        EXPECT_EQ(Evaluate(cards).kicker, value::Queen);
+
     }
     {
         DealtCards cards(7);
@@ -100,8 +106,9 @@ TEST(EvaluateTest, TestPair){
         cards.Deal({suit::Spades, value::Queen});
         cards.Deal({suit::Diamonds, value::Queen});
         cards.Deal({suit::Clubs, value::Two});
-        EXPECT_EQ(Evaluate(cards), (int) rank::Pair * (int) value::Queen + (int) value::Ace);
-        EXPECT_EQ(Evaluate(cards), 134);
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::Pair);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Queen);
+        EXPECT_EQ(Evaluate(cards).kicker, value::Ace);
     }
     {
         DealtCards cards(7);
@@ -113,13 +120,14 @@ TEST(EvaluateTest, TestPair){
         cards.Deal({suit::Diamonds, value::Ace});
         cards.Deal({suit::Clubs, value::Two});
         // Best hand A A 3 3 Q
-        EXPECT_EQ(Evaluate(cards), (int) value::Ace * (int) rank::TwoPairs + (int) value::Three * (int) rank::Pair + (int) value::Queen);
-        EXPECT_EQ(Evaluate(cards), 1442);
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::TwoPairs);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
+        EXPECT_EQ(Evaluate(cards).kicker, value::Three);
     }
 }
 
 TEST(EvaluateTest, TestThrees){ 
-   {
+    {
         DealtCards cards(7);
         cards.Deal({suit::Clubs, value::Ace});
         cards.Deal({suit::Spades, value::Ace});
@@ -129,9 +137,41 @@ TEST(EvaluateTest, TestThrees){
         cards.Deal({suit::Diamonds, value::Ace});
         cards.Deal({suit::Clubs, value::Two});
         // A A A Q 9 (14 * 1000 + 12) = 152
-        EXPECT_EQ(Evaluate(cards), 12);
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::ThreeOfAKind);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
+        EXPECT_EQ(Evaluate(cards).kicker, value::Queen);
     }
+	{
+		DealtCards cards(7);
+		cards.Deal({suit::Clubs, value::Ace});
+		cards.Deal({suit::Spades, value::Ace});
+		cards.Deal({suit::Hearts, value::Seven});
+		cards.Deal({suit::Diamonds, value::Seven});
+		cards.Deal({suit::Spades, value::Queen});
+		cards.Deal({suit::Diamonds, value::Ace});
+		cards.Deal({suit::Clubs, value::Two});
+		// A A A Q 9 (14 * 1000 + 12) = 152
+		EXPECT_EQ(Evaluate(cards).combo_rank, rank::FullHouse);
+		EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
+		EXPECT_EQ(Evaluate(cards).kicker, value::Seven);
+	}
+}
 
+TEST(EvaluateTest, TestFour){ 
+   {
+        DealtCards cards(7);
+        cards.Deal({suit::Clubs, value::Ace});
+        cards.Deal({suit::Spades, value::Ace});
+        cards.Deal({suit::Hearts, value::Ace});
+        cards.Deal({suit::Diamonds, value::Nine});
+        cards.Deal({suit::Spades, value::Queen});
+        cards.Deal({suit::Diamonds, value::Ace});
+        cards.Deal({suit::Clubs, value::Two});
+        // A A A Q 9 (14 * 1000 + 12) = 152
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::FourOfAKind);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
+        EXPECT_EQ(Evaluate(cards).kicker, value::Queen);
+    }
 }
 
 TEST_F(PokerTest, InitialTest) {
@@ -189,4 +229,13 @@ TEST_F(PokerTest, TestWholeHand) {
     EXPECT_EQ(petr->GetMoney(), 995);
     EXPECT_EQ(dmitriy->GetMoney(), 1025);
     EXPECT_EQ(playhand->GetWinner()->name, dmitriy->name);
+}
+
+TEST(CombinationTest, TestLess) {
+    {
+        Combination l, r;
+        l.combo_rank = rank::Pair;
+        r.combo_rank = rank::FourOfAKind;
+        EXPECT_TRUE(l < r);
+    }
 }
