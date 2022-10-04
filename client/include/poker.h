@@ -12,7 +12,7 @@
 
 namespace Poker {
 	enum class suit {Spades, Clubs, Hearts, Diamonds};
-	enum class value {Two=2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace};
+	enum class value {Two=2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack=11, Queen=12, King=13, Ace=14};
 	enum class stage {Preflop, Flop, Turn, River, Final};
 	enum class action {NoAction, Fold, Call, Raise};
 	enum class rank {HighCard, Pair=10, TwoPairs=100, ThreeOfAKind=1000, Straight=2000, Flush=3000, FullHouse=10000, FourOfAKind=100000, StraightFlush=1000000};
@@ -26,7 +26,16 @@ namespace Poker {
 		}
 	};	
 
+	struct Combination{
+		Combination(): cards(5), combo_rank(rank::HighCard), combo_val(value::Two), kicker(value::Two) {};
+		rank combo_rank;
+		value combo_val;
+		value kicker;
+		DealtCards cards;
+	};
+
 	bool operator<(const Card& l, const Card& r);
+	bool operator<(const Combination& l, const Combination& r);
 	
 	struct Move {
 		action act;
@@ -101,7 +110,7 @@ namespace Poker {
 	
 	class DealtCards{
 	public:
-		friend int Evaluate(const DealtCards& dealt);
+		friend Combination Evaluate(const DealtCards& dealt);
 		DealtCards(int count = 2): cards(count) {}
 		DealtCards(Card* cards, int count = 2);
 		void Reset();
@@ -199,5 +208,6 @@ namespace Poker {
 		TestPlayHand(std::istream& str = std::cin) : PlayHand(str) { deck = Deck(true); }
 	};
 
-	int Evaluate(const DealtCards& dealt);
+	Combination Evaluate(const DealtCards& dealt);
+	int StraightCheck();
 }

@@ -309,14 +309,17 @@ Player* PlayHand::FindWinner() {
 	return players[0].val;
 }
 
-int Poker::Evaluate(const DealtCards& dealt){
+Combination Poker::Evaluate(const DealtCards& dealt){
+	int used_cards = 0;
 	int rank = 0;
+	Combination result;
+
 	dealt.cards;
 	std::vector<Card> all_cards(dealt.cards);
 	std::sort(std::begin(all_cards), std::end(all_cards));
 
 	if(all_cards.size() < 5)
-		return 0;									// Not enough cards
+		return result;									// Not enough cards
 
 	std::unordered_map<value, int> hash_value; 	  	// Map to count values
 	std::unordered_map<suit, int> hash_suit;		// Map to count suits
@@ -325,23 +328,105 @@ int Poker::Evaluate(const DealtCards& dealt){
 		hash_suit[all_cards[i].suit]++;
 	}
 
+
 	for(auto& it: hash_suit){
 		if(it.second >= 5){ 						// Check flush and straightflush
+			result.combo_rank = rank::Flush;
 			suit flush_suit = it.first;
-			rank = (int) rank::Flush;
 			value high_card = value::Two;
 
 			for(Card& card: all_cards){
 				if (card.suit == flush_suit)
-					high_card = card.value;
+					result.combo_val = card.value;
 			}
-			rank += (int) high_card;
+			return result;
 		}
 	}
 
+	for(auto &it: hash_value){
+		if(it.second == 2){
+			// Check for pair
+			value high_card = value::Two;
+			value kicker_val = value::Two;
+			int temp_rank;
 
-	return rank;
+			for(auto &pair: hash_value){
+				// Check for two pairs
+				if(pair.second == 2 && it.first != pair.first){
+					int kicker_val;
+					
+					// Search higher kicker
+					for(auto &kicker: hash_value){
+						if (kicker.second < 2)
+							kicker_val = (int) kicker.first;
+					}
+
+					temp_rank = ((int) it.first > (int) pair.first) 
+									? (int) it.first * (int) rank::TwoPairs + (int) pair.first * (int) rank::Pair + kicker_val
+									: (int) pair.first * (int) rank::TwoPairs + (int) it.first * (int) rank::Pair + kicker_val;
+
+					rank = (temp_rank > rank) ? temp_rank : rank;	// If higher, refresh
+				}
+				else {
+					if((int) pair.first > (int) kicker_val){
+						kicker_val = pair.first;
+						high_card = pair.first;
+					}
+				}
+			}
+			temp_rank = (int) it.first * (int) rank::Pair + (int) high_card;
+			rank = (temp_rank > rank) ? temp_rank : rank;	// If higher, refresh
+		}
+		else if (it.second == 3){
+			// Check for fullhouse
+			// SCORE = value*FullhouseRank + value*PairRank
+			for(auto &fh: hash_value){
+				value kicker_val = value::Two;
+				if(fh.second == 2){
+					result.combo_rank = rank::FullHouse;
+					result.combo_val = it.first;
+				
+					// For 7 cards, might be Trips and two pairs, so check for a higher rank
+					if (fh.first > kicker_val && fh.second < 3)
+						result.kicker = fh.first;
+
+					return result;
+				}
+				else if(fh.second == 3 && it.first != fh.first){
+					result.combo_rank = rank::FullHouse;
+					// For 7 cards, we might have 2 trips
+					result.combo_val = (it.first > fh.first) ? it.first : fh.first; 	// Setting Fullhouse value
+					result.kicker = (it.first > fh.first) ? fh.first : it.first;		// Kicker value vice versa
+					return result;	// The only combination, stop iterating
+				}
+				else {
+					// Just three
+					result.combo_rank = rank::ThreeOfAKind;
+					result.combo_val = it.first;
+				}
+			}
+		}
+		else if (it.second == 4){
+			// Check for FourofaKind
+
+			result.combo_rank = rank::FourOfAKind;
+			result.combo_val = it.first;
+			for(auto &it: hash_value){
+				if(it.first > result.kicker && it.second < 4)
+					result.kicker = it.first;
+			}
+			return result;			// The only combination, stop iterating
+		}
+		
+	}
+	return result;
 }
+
+int Poker::StraightCheck(){
+	return 0;
+}
+
+
 
 void PlayHand::SetBlind(const int blind) {
 	blind_size = blind;
