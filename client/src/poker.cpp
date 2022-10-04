@@ -343,6 +343,8 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 		}
 	}
 
+	result = StraightCheck(hash_value);
+
 	for(auto &it: hash_value){
 		if(it.second == 2){
 			if (result.combo_rank > rank::TwoPairs)
@@ -430,7 +432,6 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 			return result;			// The only combination, stop iterating
 		}
 		else {
-			// Check is straight
 			highest_comb.combo_rank = rank::HighCard;
 			highest_comb.combo_val = it.first;
 			highest_comb.kicker[0] = it.first;
@@ -441,8 +442,14 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 	return result;
 }
 
-int Poker::StraightCheck(){
-	return 0;
+Combination Poker::StraightCheck(const std::unordered_map<value, int>& hash_value){
+	Combination result;
+
+	if (hash_value.size() < 5)
+		return result;
+
+	bool hash_traverse = true;
+	return result;
 }
 
 

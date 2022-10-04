@@ -222,5 +222,5 @@ namespace Poker {
 	bool operator<(const Combination& l, const Combination& r);
 
 	Combination Evaluate(const DealtCards& dealt);
-	int StraightCheck();
+	Combination StraightCheck(const std::unordered_map<value, int>& hash_value);
 }
