@@ -2,8 +2,8 @@
 
 using namespace Poker;
 
-std::ostream& operator<<(std::ostream& os, const Card& card){
-	switch (card.value){
+std::ostream& operator<<(std::ostream& os, const value& val){
+	switch (val){
 	case value::Jack:
 		os << "J";
 		break;
@@ -17,10 +17,14 @@ std::ostream& operator<<(std::ostream& os, const Card& card){
 		os << "A";
 		break;
 	default:
-		os << static_cast<int>(card.value);
+		os << static_cast<int>(val);
 		break;
 	}
-	switch (card.suit){
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const suit& s){	
+	switch (s){
 	case suit::Spades:
 		os << "s";
 		break;
@@ -34,6 +38,49 @@ std::ostream& operator<<(std::ostream& os, const Card& card){
 		os << "h";
 		break;
 	}
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Card& card){
+	os << card.value << card.suit;
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const rank& r){
+	switch (r){
+	case rank::HighCard:
+		os << "High card";
+		break;
+	case rank::Pair:
+		os << "Pair";
+		break;
+	case rank::TwoPairs:
+		os << "Two Pairs";
+		break;
+	case rank::ThreeOfAKind:
+		os << "Three of a Kind";
+		break;
+	case rank::Straight:
+		os << "Straight";
+		break;
+	case rank::Flush:
+		os << "Flush";
+		break;
+	case rank::FullHouse:
+		os << "Full House";
+		break;
+	case rank::FourOfAKind:
+		os << "Four of a Kind";
+		break;
+	case rank::StraightFlush:
+		os << "Straight Flush";
+		break;
+	}
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Combination& combination){
+	os << combination.combo_rank << " of " << combination.combo_val;
 	return os;
 }
 
@@ -568,7 +615,7 @@ void DealtCards::Deal(Card card){
 	cards[open_cards++] = card;
 }
 
-#if 0
+#if 1
 int main() {
 	Player* player1 = new Player("Ivan", 1000);
 	Player* player2 = new Player("Petr", 1000);
