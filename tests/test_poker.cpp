@@ -174,6 +174,143 @@ TEST(EvaluateTest, TestFour){
     }
 }
 
+TEST(EvaluateTest, TestStraight){ 
+   {
+        DealtCards cards(7);
+        cards.Deal({suit::Clubs, value::Four});
+        cards.Deal({suit::Spades, value::Five});
+        cards.Deal({suit::Hearts, value::Ace});
+        cards.Deal({suit::Diamonds, value::Seven});
+        cards.Deal({suit::Spades, value::Queen});
+        cards.Deal({suit::Diamonds, value::Eight});
+        cards.Deal({suit::Clubs, value::Six});
+        // straight from Four to Seven
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::Straight);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Eight);
+    }
+    {
+        DealtCards cards(7);
+        cards.Deal({suit::Clubs, value::Four});
+        cards.Deal({suit::Spades, value::King});
+        cards.Deal({suit::Hearts, value::Ace});
+        cards.Deal({suit::Diamonds, value::Seven});
+        cards.Deal({suit::Spades, value::Queen});
+        cards.Deal({suit::Diamonds, value::Three});
+        cards.Deal({suit::Clubs, value::Two});
+        // straight from Ace to Four
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::Straight);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Four);
+	}
+	{
+		DealtCards cards(7);
+		cards.Deal({suit::Clubs, value::Jack});
+		cards.Deal({suit::Spades, value::King});
+		cards.Deal({suit::Hearts, value::Ace});
+		cards.Deal({suit::Diamonds, value::Seven});
+		cards.Deal({suit::Spades, value::Queen});
+		cards.Deal({suit::Diamonds, value::Ten});
+		cards.Deal({suit::Clubs, value::Two});
+		// from 10 to Ace
+		EXPECT_EQ(Evaluate(cards).combo_rank, rank::Straight);
+		EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
+	}
+}
+
+TEST(EvaluateTest, TestStraightFlush) {
+    {
+        DealtCards cards(7);
+        cards.Deal({ suit::Clubs, value::Four });
+        cards.Deal({ suit::Clubs, value::Five });
+        cards.Deal({ suit::Hearts, value::Ace });
+        cards.Deal({ suit::Clubs, value::Seven });
+        cards.Deal({ suit::Spades, value::Queen });
+        cards.Deal({ suit::Clubs, value::Eight });
+        cards.Deal({ suit::Clubs, value::Six });
+        // straight from Four to Seven
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::StraightFlush);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Eight);
+    }
+    {
+        DealtCards cards(7);
+        cards.Deal({ suit::Clubs, value::Four });
+        cards.Deal({ suit::Clubs, value::Five });
+        cards.Deal({ suit::Clubs, value::Ace });
+        cards.Deal({ suit::Clubs, value::Seven });
+        cards.Deal({ suit::Spades, value::Queen });
+        cards.Deal({ suit::Clubs, value::Eight });
+        cards.Deal({ suit::Clubs, value::Six });
+        // straight from Four to Seven
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::StraightFlush);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Eight);
+    }
+}
+TEST_F(PokerTest, InitialTest) {
+    ss = std::stringstream("F F F");
+
+    playhand->NewHand();
+	while (playhand->GetStage() != stage::Final)
+		playhand->Round();
+	playhand->FinishHand();
+
+}
+
+TEST_F(PokerTest, RaiseBet) {
+    ss << "F F R 100 C C C R 300 F";
+    playhand->NewHand();
+	playhand->Round(); // Preflop
+    EXPECT_EQ(sergey->GetMoney(), 900);
+    EXPECT_EQ(petr->GetMoney(), 900);
+    EXPECT_EQ(ivan->GetMoney(), 1000);
+    EXPECT_EQ(playhand->GetBank(), 200);
+    playhand->Round();
+    EXPECT_EQ(playhand->GetBank(), 200);
+    playhand->Round();
+    EXPECT_EQ(playhand->GetBank(), 500);
+    playhand->FinishHand();
+    EXPECT_EQ(sergey->GetMoney(), 900);
+    EXPECT_EQ(petr->GetMoney(), 1100);
+    EXPECT_EQ(playhand->GetWinner()->name, petr->name);
+}
+
+TEST_F(PokerTest, RaiseTooMuch) {
+    ss << "F R 1500 1000 C F F";
+    playhand->NewHand();
+	playhand->Round(); // Preflokp
+    EXPECT_EQ(ivan->GetMoney(), 0);
+    EXPECT_EQ(petr->GetMoney(), 0);
+    EXPECT_EQ(playhand->GetBank(), 2010);
+	playhand->Round(); // Flop
+    playhand->FinishHand();
+    EXPECT_EQ(ivan->GetMoney(), 2010);
+    EXPECT_EQ(playhand->GetWinner()->name, ivan->name);
+}
+
+
+TEST_F(PokerTest, TestWholeHand) {
+    ss << "C C F C C C C C C C C C C C C C C";
+    playhand->NewHand();
+	playhand->Round();
+	playhand->Round();
+	playhand->Round();
+	playhand->Round();
+    playhand->FinishHand();
+    EXPECT_EQ(ivan->GetMoney(), 990);
+    EXPECT_EQ(sergey->GetMoney(), 990);
+    EXPECT_EQ(petr->GetMoney(), 995);
+    EXPECT_EQ(dmitriy->GetMoney(), 1025);
+    EXPECT_EQ(playhand->GetWinner()->name, dmitriy->name);
+}
+
+TEST(CombinationTest, TestLess) {
+    {
+        Combination l, r;
+        l.combo_rank = rank::Pair;
+        r.combo_rank = rank::FourOfAKind;
+        EXPECT_TRUE(l < r);
+    }
+}
+}
+
 TEST_F(PokerTest, InitialTest) {
     ss = std::stringstream("F F F");
 
