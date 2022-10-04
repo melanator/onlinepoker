@@ -45,7 +45,7 @@ TEST(TestDealCards, TestSum){
     EXPECT_EQ(cards1[0].suit, suit::Clubs);
     EXPECT_EQ(cards2[1].suit, suit::Diamonds);
     DealtCards cards1_2 = cards1 + cards2;
-    EXPECT_EQ(cards1[2].value, value::Ace);
+    EXPECT_EQ(cards1_2[2].value, value::Ace);
 }
 
 
@@ -66,16 +66,17 @@ protected:
 };
 
 
-TEST_F(EvaluateTest, Test){
+TEST_F(EvaluateTest, TestFlush){
     player1.Deal({suit::Diamonds, value::Ace});
     player1.Deal({suit::Diamonds, value::Queen});
     player2.Deal({suit::Clubs, value::Ace});
     player2.Deal({suit::Clubs, value::Queen});
 
-    EXPECT_EQ(cards.Evaluate(), 0); // 3014 Flush - 3000, Ace - 14;
+    EXPECT_EQ(Evaluate(cards), 0); // 3014 Flush - 3000, Ace - 14;
+    EXPECT_EQ(Evaluate(cards+player1.hand), 3014);    // Flush with Ace
+    EXPECT_EQ(Evaluate(cards+player2.hand), 14);      // Ace high card
+
 }
-/*
-Need to add selection of stream to automate poker tests */ 
 
 TEST_F(PokerTest, InitialTest) {
     ss = std::stringstream("F F F");

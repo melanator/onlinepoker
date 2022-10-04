@@ -1,5 +1,4 @@
 #include "../include/poker.h"
-#include <unordered_map>
 
 using namespace Poker;
 
@@ -310,10 +309,14 @@ Player* PlayHand::FindWinner() {
 	return players[0].val;
 }
 
-int DealtCards::Evaluate(){
+int Poker::Evaluate(const DealtCards& dealt){
 	int rank = 0;
-	std::vector<Card> all_cards(cards);
+	dealt.cards;
+	std::vector<Card> all_cards(dealt.cards);
 	std::sort(std::begin(all_cards), std::end(all_cards));
+
+	if(all_cards.size() < 5)
+		return 0;									// Not enough cards
 
 	std::unordered_map<value, int> hash_value; 	  	// Map to count values
 	std::unordered_map<suit, int> hash_suit;		// Map to count suits
@@ -334,7 +337,8 @@ int DealtCards::Evaluate(){
 			}
 			rank += (int) high_card;
 		}
-	}	
+	}
+
 
 	return rank;
 }

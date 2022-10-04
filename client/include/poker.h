@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include "table.h"
 
 #define START_BANK 1000
@@ -100,22 +101,15 @@ namespace Poker {
 	
 	class DealtCards{
 	public:
+		friend int Evaluate(const DealtCards& dealt);
 		DealtCards(int count = 2): cards(count) {}
 		DealtCards(Card* cards, int count = 2);
 		void Reset();
 		void Deal(Card card);
-		int Evaluate();
 		Card& operator[](int index) { return cards[index]; };
 		Card operator[](int index) const { return cards[index]; }
-		DealtCards& operator+(const DealtCards& rhs){
-			for(int i = 0; i < rhs.open_cards; i++){
-				cards.push_back(rhs[i]);
-			}
-			open_cards += rhs.open_cards;
-			return *this;
-		}
 		friend DealtCards operator+(const DealtCards& lhs, const DealtCards& rhs){
-			DealtCards result;
+			DealtCards result(lhs.open_cards + rhs.open_cards);
 			for(int i = 0; i < lhs.open_cards; i++){
 				result.Deal(lhs[i]);
 			}
@@ -147,11 +141,11 @@ namespace Poker {
 		void Reset();
 		const bool IsInPlay() const { return in_play; }
 		const int GetBetThisHand() const { return bet_this_hand; }
+		DealtCards hand;	
 		
 	private:
 		Move ReadAction(std::string& decision, std::istream& input = std::cin);
 		action action = action::NoAction;
-		DealtCards hand;	
 		int money = START_BANK;
 		bool in_play = false;
 		int bet_this_hand = 0;
@@ -204,4 +198,6 @@ namespace Poker {
 	public:
 		TestPlayHand(std::istream& str = std::cin) : PlayHand(str) { deck = Deck(true); }
 	};
+
+	int Evaluate(const DealtCards& dealt);
 }
