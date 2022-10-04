@@ -94,7 +94,7 @@ TEST(EvaluateTest, TestPair){
         // A A Q (14 * 10 + 12) = 152
         EXPECT_EQ(Evaluate(cards).combo_rank, rank::Pair);
         EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
-        EXPECT_EQ(Evaluate(cards).kicker, value::Queen);
+        EXPECT_EQ(Evaluate(cards).kicker[0], value::Queen);
 
     }
     {
@@ -108,7 +108,7 @@ TEST(EvaluateTest, TestPair){
         cards.Deal({suit::Clubs, value::Two});
         EXPECT_EQ(Evaluate(cards).combo_rank, rank::Pair);
         EXPECT_EQ(Evaluate(cards).combo_val, value::Queen);
-        EXPECT_EQ(Evaluate(cards).kicker, value::Ace);
+        EXPECT_EQ(Evaluate(cards).kicker[0], value::Ace);
     }
     {
         DealtCards cards(7);
@@ -122,7 +122,7 @@ TEST(EvaluateTest, TestPair){
         // Best hand A A 3 3 Q
         EXPECT_EQ(Evaluate(cards).combo_rank, rank::TwoPairs);
         EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
-        EXPECT_EQ(Evaluate(cards).kicker, value::Three);
+        EXPECT_EQ(Evaluate(cards).kicker[0], value::Three);
     }
 }
 
@@ -139,7 +139,7 @@ TEST(EvaluateTest, TestThrees){
         // A A A Q 9 (14 * 1000 + 12) = 152
         EXPECT_EQ(Evaluate(cards).combo_rank, rank::ThreeOfAKind);
         EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
-        EXPECT_EQ(Evaluate(cards).kicker, value::Queen);
+        EXPECT_EQ(Evaluate(cards).kicker[0], value::Queen);
     }
 	{
 		DealtCards cards(7);
@@ -153,7 +153,7 @@ TEST(EvaluateTest, TestThrees){
 		// A A A Q 9 (14 * 1000 + 12) = 152
 		EXPECT_EQ(Evaluate(cards).combo_rank, rank::FullHouse);
 		EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
-		EXPECT_EQ(Evaluate(cards).kicker, value::Seven);
+		EXPECT_EQ(Evaluate(cards).kicker[0], value::Seven);
 	}
 }
 
@@ -170,7 +170,7 @@ TEST(EvaluateTest, TestFour){
         // A A A Q 9 (14 * 1000 + 12) = 152
         EXPECT_EQ(Evaluate(cards).combo_rank, rank::FourOfAKind);
         EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
-        EXPECT_EQ(Evaluate(cards).kicker, value::Queen);
+        EXPECT_EQ(Evaluate(cards).kicker[0], value::Queen);
     }
 }
 
@@ -308,7 +308,6 @@ TEST(CombinationTest, TestLess) {
         r.combo_rank = rank::FourOfAKind;
         EXPECT_TRUE(l < r);
     }
-}
 }
 
 TEST_F(PokerTest, InitialTest) {
