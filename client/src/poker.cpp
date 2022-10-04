@@ -388,8 +388,8 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 		else if (it.second == 3){
 			// Check for fullhouse
 			value kicker_val = value::Two;
+			value two_pairs_check = value::Two;
 			for(auto &fh: hash_value){
-				value two_pairs_check = value::Two;
 				if(fh.second == 2){
 					highest_comb.combo_rank = rank::FullHouse;
 					highest_comb.combo_val = it.first;
