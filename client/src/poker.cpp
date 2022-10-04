@@ -166,6 +166,7 @@ bool Player::FinishedRound(const int high_bet) {
 void Player::Reset() {
 	action = action::NoAction;
 	bet_this_hand = 0;
+	combo = Combination();
 }
 
 PlayHand& PlayHand::AddPlayer(Player* player) {
@@ -303,10 +304,16 @@ void PlayHand::Trade() {
 }
 
 Player* PlayHand::FindWinner() {
-	//for(int i = 0; i < players.size, i++){
-	//	Evaluate(players[i].val->hand[0], players[i].val->hand[1]);
-	//}
-	return players[0].val;
+	Combination winning_combo;
+	Player* winner = nullptr;
+	for(int i = 0; i < players.size; i++){
+		if(players[i].val->IsInPlay()){
+			players[i].val->combo = Evaluate(dealt_cards + players[i].val->hand);
+			winner = (winning_combo < players[i].val->combo) ? players[i].val : winner;
+			winning_combo = (winning_combo < players[i].val->combo) ? players[i].val->combo : winning_combo;
+		}
+	}
+	return winner;
 }
 
 Combination Poker::Evaluate(const DealtCards& dealt){

@@ -127,6 +127,23 @@ namespace Poker {
 		int open_cards = 0;
 	};
 
+	struct Combination{
+		Combination() : cards(5), combo_rank(rank::HighCard), combo_val(value::Two), kicker({ value::Two }) {};
+		rank combo_rank;
+		value combo_val;
+		std::vector<value> kicker;
+		DealtCards cards;
+
+		friend bool operator<(const Poker::Combination& l, const Poker::Combination& r) {
+			return std::tie(l.combo_rank, l.combo_val, l.kicker) < std::tie(r.combo_rank, r.combo_val, r.kicker);
+		}
+
+		friend bool operator==(const Poker::Combination& l, const Poker::Combination& r) {
+			return (l.combo_rank == r.combo_rank) && (l.combo_val == r.combo_val) && (l.kicker == r.kicker);
+		}
+
+	};
+
 	class Player{
 	public:
 		friend class PlayHand;
@@ -146,6 +163,7 @@ namespace Poker {
 		const bool IsInPlay() const { return in_play; }
 		const int GetBetThisHand() const { return bet_this_hand; }
 		DealtCards hand;	
+		Combination combo;
 		
 	private:
 		Move ReadAction(std::string& decision, std::istream& input = std::cin);
@@ -203,22 +221,6 @@ namespace Poker {
 		TestPlayHand(std::istream& str = std::cin) : PlayHand(str) { deck = Deck(true); }
 	};
 
-	struct Combination{
-		Combination() : cards(5), combo_rank(rank::HighCard), combo_val(value::Two), kicker({ value::Two }) {};
-		rank combo_rank;
-		value combo_val;
-		std::vector<value> kicker;
-		DealtCards cards;
-
-		friend bool operator<(const Poker::Combination& l, const Poker::Combination& r) {
-			return std::tie(l.combo_rank, l.combo_val, l.kicker) < std::tie(r.combo_rank, r.combo_val, r.kicker);
-		}
-
-		friend bool operator==(const Poker::Combination& l, const Poker::Combination& r) {
-			return (l.combo_rank == r.combo_rank) && (l.combo_val == r.combo_val) && (l.kicker == r.kicker);
-		}
-
-	};
 
 	bool operator<(const Combination& l, const Combination& r);
 

@@ -305,6 +305,7 @@ TEST_F(PokerTest, TestWholeHand) {
 	playhand->Round();
 	playhand->Round();
 	playhand->Round();
+    dmitriy->hand[1] = {suit::Diamonds, value::Queen};      // Assuring Dmitriy has winning pair in this seed
 	playhand->Round();
     playhand->FinishHand();
     EXPECT_EQ(ivan->GetMoney(), 990);
@@ -312,6 +313,7 @@ TEST_F(PokerTest, TestWholeHand) {
     EXPECT_EQ(petr->GetMoney(), 995);
     EXPECT_EQ(dmitriy->GetMoney(), 1025);
     EXPECT_EQ(playhand->GetWinner()->name, dmitriy->name);
+    EXPECT_EQ(playhand->GetWinner()->combo.combo_rank, rank::TwoPairs);
 }
 
 TEST(CombinationTest, TestLess) {
