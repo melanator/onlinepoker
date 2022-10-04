@@ -203,10 +203,10 @@ namespace Poker {
 	};
 
 	struct Combination{
-		Combination(): cards(5), combo_rank(rank::HighCard), combo_val(value::Two), kicker(value::Two) {};
+		Combination() : cards(5), combo_rank(rank::HighCard), combo_val(value::Two), kicker({ value::Two }) {};
 		rank combo_rank;
 		value combo_val;
-		value kicker;
+		std::vector<value> kicker;
 		DealtCards cards;
 
 		friend bool operator<(const Poker::Combination& l, const Poker::Combination& r) {

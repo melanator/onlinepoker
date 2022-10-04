@@ -353,7 +353,7 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 			
 			highest_comb.combo_rank = rank::Pair;
 			highest_comb.combo_val = it.first;
-			highest_comb.kicker = value::Two;
+			highest_comb.kicker[0] = value::Two;
 
 			for(auto &pair: hash_value){
 				// Check for two pairs
@@ -369,7 +369,7 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 					}	
 
 					highest_comb.combo_val = (it.first > pair.first) ? it.first : pair.first;
-					highest_comb.kicker = (it.first > pair.first) ? pair.first : it.first;
+					highest_comb.kicker[0] = (it.first > pair.first) ? pair.first : it.first;
 
 					result = (result < highest_comb) ? highest_comb : result;
 				}
@@ -377,8 +377,8 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 					if (result.combo_rank > rank::Pair)
 						continue;
 
-					if (pair.first > highest_comb.kicker) {
-						highest_comb.kicker = pair.first;
+					if (pair.first > highest_comb.kicker[0]) {
+						highest_comb.kicker[0] = pair.first;
 						result = (result < highest_comb) ? highest_comb : result;
 					}
 
@@ -396,7 +396,7 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 				
 					// For 7 cards, might be Trips and two pairs, so check for a higher rank
 					if (fh.first > kicker_val && fh.second < 3)
-						result.kicker = fh.first;
+						result.kicker[0] = fh.first;
 
 					return result;
 				}
@@ -404,7 +404,7 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 					result.combo_rank = rank::FullHouse;
 					// For 7 cards, we might have 2 trips
 					result.combo_val = (it.first > fh.first) ? it.first : fh.first; 	// Setting Fullhouse value
-					result.kicker = (it.first > fh.first) ? fh.first : it.first;		// Kicker value vice versa
+					result.kicker[0] = (it.first > fh.first) ? fh.first : it.first;		// Kicker value vice versa
 					return result;	// The only combination, stop iterating
 				}
 				else {
@@ -412,7 +412,7 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 					result.combo_rank = rank::ThreeOfAKind;
 					result.combo_val = it.first;
 					if (fh.first > kicker_val && fh.first != it.first)
-						kicker_val = result.kicker = fh.first;
+						kicker_val = result.kicker[0] = fh.first;
 				}
 			}
 		}
@@ -422,8 +422,8 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 			result.combo_rank = rank::FourOfAKind;
 			result.combo_val = it.first;
 			for(auto &it: hash_value){
-				if(it.first > result.kicker && it.second < 4)
-					result.kicker = it.first;
+				if(it.first > result.kicker[0] && it.second < 4)
+					result.kicker[0] = it.first;
 			}
 			return result;			// The only combination, stop iterating
 		}
@@ -431,7 +431,7 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 			// Check is straight
 			highest_comb.combo_rank = rank::HighCard;
 			highest_comb.combo_val = it.first;
-			highest_comb.kicker = it.first;
+			highest_comb.kicker[0] = it.first;
 
 			result = (result < highest_comb) ? highest_comb : result;
 		}
