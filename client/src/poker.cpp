@@ -321,31 +321,47 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 	if(all_cards.size() < 5)
 		return result;									// Not enough cards
 
-	std::unordered_map<value, int> hash_value; 	  	// Map to count values
-	std::unordered_map<suit, int> hash_suit;		// Map to count suits
+	std::map<value, int> hash_value; 	  				// Map to count values
+	std::unordered_map<suit, int> hash_suit;			// Map to count suits
 	for(int i = 0; i < all_cards.size(); i++){
 		hash_value[all_cards[i].value]++;
 		hash_suit[all_cards[i].suit]++;
 	}
 
 
-	for(auto& it: hash_suit){
-		if(it.second >= 5){ 						// Check flush and straightflush
+	for(const auto& it: hash_suit){
+		if(it.second >= 5){ 							// Check flush and straightflush
 			result.combo_rank = rank::Flush;
 			suit flush_suit = it.first;
 			value high_card = value::Two;
+
+			std::map<value, int> hash_flush;
+			for(const auto& flush_card: all_cards)
+				if (flush_card.suit == flush_suit)
+					hash_flush[flush_card.value]++;
+			
+			if(hash_flush.size() >= 5){
+				Combination straightflush = StraightCheck(hash_flush);
+				if (straightflush.combo_rank == rank::Straight){
+					result.combo_rank = rank::StraightFlush;
+					result.combo_val = straightflush.combo_val;
+					result.kicker[0] = straightflush.kicker[0];
+					return result;
+				}
+			}
 
 			for(Card& card: all_cards){
 				if (card.suit == flush_suit && card.value > result.combo_val)
 					result.combo_val = card.value;
 			}
+
 			return result;
 		}
 	}
 
 	result = StraightCheck(hash_value);
 
-	for(auto &it: hash_value){
+	for(const auto &it: hash_value){
 		if(it.second == 2){
 			if (result.combo_rank > rank::TwoPairs)
 				continue;
@@ -357,14 +373,14 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 			highest_comb.combo_val = it.first;
 			highest_comb.kicker[0] = value::Two;
 
-			for(auto &pair: hash_value){
+			for(const auto &pair: hash_value){
 				// Check for two pairs
 				if(pair.second == 2 && it.first != pair.first){
 					highest_comb.combo_rank = rank::TwoPairs;
 					value kicker_val = value::Two;
 					
 					// Search higher kicker
-					for(auto &kicker: hash_value){
+					for(const auto &kicker: hash_value){
 						if (kicker.first != pair.first && kicker.first != it.first)
 							if (kicker.first > kicker_val)
 								kicker_val = kicker.first;
@@ -378,12 +394,9 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 				else if (it.first != pair.first) {
 					if (result.combo_rank > rank::Pair)
 						continue;
-
-					if (pair.first > highest_comb.kicker[0]) {
-						highest_comb.kicker[0] = pair.first;
-						result = (result < highest_comb) ? highest_comb : result;
-					}
-
+					
+					highest_comb.kicker[0] = pair.first;
+					result = highest_comb;
 				}
 			}
 		}
@@ -442,13 +455,46 @@ Combination Poker::Evaluate(const DealtCards& dealt){
 	return result;
 }
 
-Combination Poker::StraightCheck(const std::unordered_map<value, int>& hash_value){
+Combination Poker::StraightCheck(const std::map<value, int>& hash_value){
 	Combination result;
 
 	if (hash_value.size() < 5)
 		return result;
+	
+	value last = value::Two;
+	int counter = 4;
+	for(const auto& it: hash_value){
+		if (counter == 0){
+			if (hash_value.count((value)((int) it.first - 1))){
+				last = it.first;
+				continue;
+			}
+			result.combo_rank = rank::Straight;
+			result.combo_val = last;
+			result.kicker[0] = last;
+			return result;
+		}
+		if(it.first == value::Two){
+			if (hash_value.count(value::Ace))
+				counter--;
+		}
+		else {
+			if (hash_value.count((value)((int) it.first - 1))){
+				counter--;
+				last = it.first;
+			}
+			else
+				counter = 4;
+		}
+	}
 
-	bool hash_traverse = true;
+	if (counter == 0){
+		// Iteration ends, but condition were met, last card or straight was Ace
+		result.combo_rank = rank::Straight;
+		result.combo_val = last;
+		result.kicker[0] = last;
+	}
+
 	return result;
 }
 

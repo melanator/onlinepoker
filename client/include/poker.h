@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <tuple>
 #include "table.h"
 
@@ -222,5 +223,5 @@ namespace Poker {
 	bool operator<(const Combination& l, const Combination& r);
 
 	Combination Evaluate(const DealtCards& dealt);
-	Combination StraightCheck(const std::unordered_map<value, int>& hash_value);
+	Combination StraightCheck(const std::map<value, int>& hash_value);
 }

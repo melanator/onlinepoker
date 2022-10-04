@@ -194,12 +194,12 @@ TEST(EvaluateTest, TestStraight){
         cards.Deal({suit::Spades, value::King});
         cards.Deal({suit::Hearts, value::Ace});
         cards.Deal({suit::Diamonds, value::Seven});
-        cards.Deal({suit::Spades, value::Queen});
+        cards.Deal({suit::Spades, value::Five});
         cards.Deal({suit::Diamonds, value::Three});
         cards.Deal({suit::Clubs, value::Two});
         // straight from Ace to Four
         EXPECT_EQ(Evaluate(cards).combo_rank, rank::Straight);
-        EXPECT_EQ(Evaluate(cards).combo_val, value::Four);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Five);
 	}
 	{
 		DealtCards cards(7);
@@ -213,6 +213,19 @@ TEST(EvaluateTest, TestStraight){
 		// from 10 to Ace
 		EXPECT_EQ(Evaluate(cards).combo_rank, rank::Straight);
 		EXPECT_EQ(Evaluate(cards).combo_val, value::Ace);
+	} 
+    {
+        DealtCards cards(7);
+        cards.Deal({suit::Clubs, value::Four});
+        cards.Deal({suit::Spades, value::King});
+        cards.Deal({suit::Hearts, value::Six});
+        cards.Deal({suit::Diamonds, value::Seven});
+        cards.Deal({suit::Spades, value::Five});
+        cards.Deal({suit::Diamonds, value::Three});
+        cards.Deal({suit::Clubs, value::Two});
+        // straight from Ace to Four
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::Straight);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::Seven);
 	}
 }
 
