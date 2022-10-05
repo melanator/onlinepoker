@@ -164,7 +164,6 @@ Move Player::Trade(const int bank_size, const int to_bet, std::istream& input) {
 			return { action::NoAction, 0 };
 		}
 	}
-
 }
 
 Move Player::ReadAction(std::string& decision, std::istream& input) {
@@ -213,7 +212,9 @@ bool Player::FinishedRound(const int high_bet) {
 void Player::Reset() {
 	action = action::NoAction;
 	bet_this_hand = 0;
-	combo = Combination();
+	combo.combo_rank = rank::HighCard;
+	combo.combo_val = value::Two;
+	combo.kicker[0] = value::Two;
 }
 
 PlayHand& PlayHand::AddPlayer(Player* player) {
@@ -358,8 +359,10 @@ Player* PlayHand::FindWinner() {
 			players[i].val->combo = Evaluate(dealt_cards + players[i].val->hand);
 			winner = (winning_combo < players[i].val->combo) ? players[i].val : winner;
 			winning_combo = (winning_combo < players[i].val->combo) ? players[i].val->combo : winning_combo;
+			std::cout << players[i].val->name << " has " << players[i].val->combo << std::endl;
 		}
 	}
+
 	return winner;
 }
 
@@ -552,8 +555,6 @@ Combination Poker::StraightCheck(const std::map<value, int>& hash_value){
 	return result;
 }
 
-
-
 void PlayHand::SetBlind(const int blind) {
 	blind_size = blind;
 }
@@ -562,6 +563,7 @@ void PlayHand::FinishHand() {
 	std::cout << winner->name << " won the round" << std::endl;
 	winner->AddMoney(bank);
 	std::cout << "Bank: " << bank << " -> " << winner->name << "'s money: " << winner->GetMoney() << std::endl;
+	std::cout << "-------------------------------------" << std::endl << std::endl;
 }
 
 bool PlayHand::IsEndOfRound(const int high_bet) {
@@ -615,7 +617,7 @@ void DealtCards::Deal(Card card){
 	cards[open_cards++] = card;
 }
 
-#if 1
+#if 0
 int main() {
 	Player* player1 = new Player("Ivan", 1000);
 	Player* player2 = new Player("Petr", 1000);
@@ -640,6 +642,4 @@ int main() {
 		<< player4->name << " " << player4->ShowCards() << std::endl;
 	
 }
-
 #endif
-

@@ -126,7 +126,7 @@ namespace Poker {
 		std::vector<Card> cards;
 		int open_cards = 0;
 	};
-
+	
 	struct Combination{
 		Combination() : cards(5), combo_rank(rank::HighCard), combo_val(value::Two), kicker({ value::Two }) {};
 		rank combo_rank;
@@ -163,7 +163,7 @@ namespace Poker {
 		const bool IsInPlay() const { return in_play; }
 		const int GetBetThisHand() const { return bet_this_hand; }
 		DealtCards hand;	
-		Combination combo;
+		Combination combo = Combination();
 		
 	private:
 		Move ReadAction(std::string& decision, std::istream& input = std::cin);
