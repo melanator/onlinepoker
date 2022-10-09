@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../client/include/poker.h"
+#include "../poker/include/poker.h"
 #include <string>
 #include <sstream>
 

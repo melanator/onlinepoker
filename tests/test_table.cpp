@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../client/include/table.h"
+#include "../poker/include/table.h"
 
 #define TABLE_INDEX(index) GetValue(table->operator[](index))
 #define NEXT(index) *(table->operator[](index).next->val)
