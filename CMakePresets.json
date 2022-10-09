@@ -82,7 +82,7 @@
         {
             "name": "MSYS64",
             "displayName": "GCC 12.1.0 x86_64-w64-mingw32",
-            "description": "Using compilers: C = C:\\Users\\a.shevchuk\\AppData\\Local\\Programs\\msys2\\mingw64\\bin\\gcc.exe, CXX = C:\\Users\\a.shevchuk\\AppData\\Local\\Programs\\msys2\\mingw64\\bin\\g++.exe",
+            "description": "Using compilers: gcc.exe, g++.exe",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
