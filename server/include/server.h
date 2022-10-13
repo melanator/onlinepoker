@@ -5,6 +5,8 @@
 */
 #include <iostream>
 #include <string>
+#include <vector>
+#include "../../poker/include/poker.h"
 #ifdef WIN_BUILD
 #include <WS2tcpip.h>
 #else
