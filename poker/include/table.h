@@ -9,9 +9,7 @@ public:
 		Type* val;
 		Node* next = nullptr;
 	};
-	Table() {
-		first = nullptr;
-	}
+	Table() { first = nullptr; }
 	Table(Type val) {
 		first = new Node({ new Type(val), nullptr });
 		first->next = first;
@@ -22,6 +20,11 @@ public:
 		first->next = first;
 		size = 1;
 	}
+
+	Table(const Table& other) = delete;
+	Table& operator=(const Table& other) = delete;
+	Table(Table&& other) = delete;
+	Table& operator=(Table&& other) = delete;
 
 	~Table() {
 		if (size == 0) {
