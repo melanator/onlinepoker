@@ -129,17 +129,17 @@ namespace Poker {
 	
 	struct Combination{
 		Combination() : cards(5), combo_rank(rank::HighCard), combo_val(value::Two), kicker({ value::Two }) {};
+		DealtCards cards;
 		rank combo_rank;
 		value combo_val;
 		std::vector<value> kicker;
-		DealtCards cards;
 
-		friend bool operator<(const Poker::Combination& l, const Poker::Combination& r) {
-			return std::tie(l.combo_rank, l.combo_val, l.kicker) < std::tie(r.combo_rank, r.combo_val, r.kicker);
+		bool operator<(const Poker::Combination& r) {
+			return std::tie(this->combo_rank, this->combo_val, this->kicker) < std::tie(r.combo_rank, r.combo_val, r.kicker);
 		}
 
-		friend bool operator==(const Poker::Combination& l, const Poker::Combination& r) {
-			return (l.combo_rank == r.combo_rank) && (l.combo_val == r.combo_val) && (l.kicker == r.kicker);
+		bool operator==(const Poker::Combination& r) {
+			return (this->combo_rank == r.combo_rank) && (this->combo_val == r.combo_val) && (this->kicker == r.kicker);
 		}
 
 	};
