@@ -147,10 +147,9 @@ namespace Poker {
 	class Player{
 	public:
 		friend class PlayHand;
-		Player(): name("blank"){}
-		Player(const std::string& name_, int money_) : name(name_), money(money_) {}
+		Player(const std::string& name_ = "blank", int money_ = 0) : name(name_), money(money_) {}
 		void GetCards(const Card& lcard, const Card& rcard);
-		std::string ShowCards();
+		const std::string ShowCards() const;
 		Move Trade(const int bank_size, const int bet, std::istream& input = std::cin);
 		void Deal(const Card& card);
 		void Pay(const int amount);

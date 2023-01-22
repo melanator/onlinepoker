@@ -120,7 +120,7 @@ void Player::GetCards(const Card& lcard, const Card& rcard) {
 	hand.Deal(rcard);
 }
 
-std::string Player::ShowCards() {
+const std::string Player::ShowCards() const{
 	std::stringstream ss;
 	ss << hand[0] << " " << hand[1];
 	return ss.str();
