@@ -1,3 +1,4 @@
+#CMake files
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -10,5 +11,13 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 out
+
+#Visual Studio / Code file
 .vscode
+.vs
+
 build
+
+# Keep asio folder in github repo
+external/asio-1.24.0/*
+!external/asio-1.24.0/.gitkeep
