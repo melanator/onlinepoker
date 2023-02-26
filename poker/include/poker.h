@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <map>
 #include <tuple>
+#include <memory>
 #include "table.h"
 
 #define START_BANK 1000
@@ -17,7 +18,17 @@ namespace Poker {
 	enum class value {Two=2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack=11, Queen=12, King=13, Ace=14};
 	enum class stage {Preflop, Flop, Turn, River, Final};
 	enum class action {NoAction, Fold, Call, Raise};
-	enum class rank {HighCard, Pair=10, TwoPairs=100, ThreeOfAKind=1000, Straight=2000, Flush=3000, FullHouse=10000, FourOfAKind=100000, StraightFlush=1000000};
+	enum class rank {
+        HighCard,
+        Pair=10,
+        TwoPairs=100,
+        ThreeOfAKind=1000,
+        Straight=2000,
+        Flush=3000,
+        FullHouse=10000,
+        FourOfAKind=100000,
+        StraightFlush=1000000
+    };
 
 	struct Card {
 		suit suit;
@@ -166,12 +177,14 @@ namespace Poker {
 		
 	private:
 		Move ReadAction(std::string& decision, std::istream& input = std::cin);
-		action action = action::NoAction;
+
 		int money = START_BANK;
-		bool in_play = false;
+        int hand_power;
 		int bet_this_hand = 0;
+        action action = action::NoAction;
+        bool in_play = false;
 		rank rank = rank::HighCard;
-		int hand_power;
+
 	};
 
 
@@ -225,4 +238,13 @@ namespace Poker {
 
 	Combination Evaluate(const DealtCards& dealt);
 	Combination StraightCheck(const std::map<value, int>& hash_value);
+
+    class iHandState {
+        virtual void action(const PlayHand& hand);
+    };
+
+    class PreFlop : public iHandState{};
+    class Flop : public iHandState{};
+    class Turn : public iHandState{};
+    class River : public iHandState{};
 }
