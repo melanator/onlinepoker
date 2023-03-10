@@ -250,7 +250,7 @@ void PlayHand::NewHand(const int new_blind) {
 		blind_size = new_blind;
 	}
 
-	deck = Deck();			// New instance of deck with shuffled card
+    deck.Shuffle();			// New instance of deck with shuffled card
 	players.shift();		// Assign positions 
 	ActivatePlayers();		// Activate players
 	SetState(std::make_unique<PreFlop>()); // Refresh stage
