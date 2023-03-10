@@ -314,14 +314,11 @@ void River::action(PlayHand* playhand) {
 	if (playhand->GetState() == stage::Final)
 		return;
 	playhand->SetState(std::make_unique<Final>());
-	playhand->DealOnTable();
 	playhand->ShowTable(5);
 	playhand->SetWinner(playhand->FindWinner());
 }
 
-void Final::action(PlayHand* playhand) {
-
-}
+void Final::action(PlayHand* playhand) {}
 
 void PlayHand::Round() {
 	handstate->action(this);
