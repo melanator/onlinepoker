@@ -113,7 +113,67 @@ namespace Poker {
 		size_t current_card = 0;
 		bool is_seeded;
 	};
-	
+
+	class PlayHand;
+	class Player;
+
+	class HandState {
+	public:
+		HandState(stage name) : state_name(name) {};
+		virtual void action(PlayHand*) = 0;
+		//virtual void trade(PlayHand*) = 0;
+		stage GetStage() { return state_name;  }
+	protected:
+		stage state_name;
+	};
+
+	class PreFlop final	: public HandState {
+	public:
+		PreFlop() : HandState(stage::Preflop) {};
+		void action(PlayHand* playhand);
+		//void trade(PlayHand* playhand);
+	};
+
+	class Flop final : public HandState {
+	public:
+		Flop() : HandState(stage::Flop) {};
+		void action(PlayHand* playhand);
+		//void trade(PlayHand* playhand);
+	};
+
+	class Turn final : public HandState {
+	public:
+		Turn() : HandState(stage::Turn) {};
+		void action(PlayHand* playhand);
+		//void trade(PlayHand* playhand);
+	};
+
+	class River final : public HandState {
+	public:
+		River() : HandState(stage::River) {};
+		void action(PlayHand* playhand);
+		//void trade(PlayHand* playhand);
+	};
+	class Final final : public HandState {
+	public:
+		Final() : HandState(stage::Final) {};
+		void action(PlayHand* playhand);
+		//void trade(PlayHand* playhand);
+	};
+
+	class HandIO {
+		/* Class for represting flow of game */
+	};
+
+	class TableDispatcher {
+		/* Class for handling table through games, managing players and etc*/
+
+	private:
+		std::unique_ptr<PlayHand> hand;
+		std::vector<std::unique_ptr<Player>> players;
+
+	};
+		
 	class DealtCards{
 	public:
 		friend Combination Evaluate(const DealtCards& dealt);
@@ -190,20 +250,30 @@ namespace Poker {
 
 	class PlayHand{
 	public:
-		PlayHand(std::istream& str = std::cin) : dealt_cards(5), input(str) {};
+		PlayHand(std::istream& str = std::cin) : 
+			dealt_cards(5), 
+			input(str)
+		{
+			handstate = std::make_unique<PreFlop>();
+		};
+
 		void SetBlind(const int blind);
 		void NewHand(const int new_blind = 0);
 		void DealOnTable();
+		void DealToPlayers();
 		PlayHand& AddPlayer(Player* player);
 		void ActivatePlayers();
 		void Round();
 		void ShowTable(const int cards);
 		void SetWinner(Player* player);
 		void FinishHand();
+		void Trade();
+		void NewRound();
 		int GetBank() const { return bank; }
 		Player* GetWinner() const { return winner; }
 		Player* FindWinner();
-		stage GetStage() const { return stage; }
+		stage GetState() { return handstate->GetStage(); }
+		void SetState(std::unique_ptr<HandState> state);
 	
 	protected:
 		Deck deck;
@@ -215,16 +285,12 @@ namespace Poker {
 		DealtCards dealt_cards;
 		size_t current_card = 0;
 		int bank = 0;
-		stage stage = stage::Preflop;
 		int blind_size;		// small blind
 		int players_ingame;
-		
-		void Trade();
-		void TradePreflop();
-		void DealToPlayers();
 		void BetFromPlayer(Player* player, const int amount);
 		bool IsEndOfRound(const int high_bet);
-		void NewRound();
+		std::unique_ptr<HandState> handstate;
+		std::unique_ptr<HandIO> out;
 	};
 	
 	class TestPlayHand : public PlayHand {
@@ -239,12 +305,4 @@ namespace Poker {
 	Combination Evaluate(const DealtCards& dealt);
 	Combination StraightCheck(const std::map<value, int>& hash_value);
 
-    class iHandState {
-        virtual void action(const PlayHand& hand);
-    };
-
-    class PreFlop : public iHandState{};
-    class Flop : public iHandState{};
-    class Turn : public iHandState{};
-    class River : public iHandState{};
 }

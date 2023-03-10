@@ -217,20 +217,21 @@ void Player::Reset() {
 	combo.kicker[0] = value::Two;
 }
 
+
 PlayHand& PlayHand::AddPlayer(Player* player) {
 	players.push_back(player);
 	return *this;
 }
 
 void PlayHand::DealOnTable() {
-	if (stage == stage::Flop) {
+	if (GetState() == stage::Flop) {
 		dealt_cards.Deal(deck.Deal());
 		dealt_cards.Deal(deck.Deal());
 		dealt_cards.Deal(deck.Deal());
 	}
-	else if (stage == stage::Turn)
+	else if (GetState() == stage::Turn)
 		dealt_cards.Deal(deck.Deal());
-	else if (stage == stage::River)
+	else if (GetState() == stage::River)
 		dealt_cards.Deal(deck.Deal());
 	else
 		std::cerr << "Wrong stage!";
@@ -252,7 +253,7 @@ void PlayHand::NewHand(const int new_blind) {
 	deck.Shuffle();			// New instance of deck with shuffled card
 	players.shift();		// Assign positions 
 	ActivatePlayers();		// Activate players
-	stage = stage::Preflop;	// Refresh stage
+	SetState(std::make_unique<PreFlop>()); // Refresh stage
 	bank = 0;				// Null the bank
 	dealt_cards.Reset();	// Reset dealtcards
 }
@@ -272,46 +273,58 @@ void PlayHand::ActivatePlayers() {
 	}
 }
 
+void PlayHand::SetState(std::unique_ptr<HandState> state) {
+	handstate = move(state);
+}
+
+void PreFlop::action(PlayHand* playhand) {
+	playhand->DealToPlayers();
+	playhand->Trade();
+	if (playhand->GetState() == stage::Final)
+		return;
+	playhand->SetState(std::make_unique<Flop>());
+	
+}
+
+void Flop::action(PlayHand* playhand) {
+	playhand->NewRound();
+	playhand->DealOnTable();
+	playhand->ShowTable(3);
+	playhand->Trade();
+	if (playhand->GetState() == stage::Final)
+		return;
+	playhand->SetState(std::make_unique<Turn>());
+}
+
+void Turn::action(PlayHand* playhand) {
+	playhand->NewRound();
+	playhand->DealOnTable();
+	playhand->ShowTable(4);
+	playhand->Trade();
+	if (playhand->GetState() == stage::Final)
+		return;
+	playhand->SetState(std::make_unique<River>());
+}
+
+void River::action(PlayHand* playhand) {
+	playhand->NewRound();
+	playhand->DealOnTable();
+	playhand->ShowTable(4);
+	playhand->Trade();
+	if (playhand->GetState() == stage::Final)
+		return;
+	playhand->SetState(std::make_unique<Final>());
+	playhand->DealOnTable();
+	playhand->ShowTable(5);
+	playhand->SetWinner(playhand->FindWinner());
+}
+
+void Final::action(PlayHand* playhand) {
+
+}
+
 void PlayHand::Round() {
-	switch (stage) {
-	case stage::Preflop:
-		DealToPlayers();
-		Trade();
-		if (stage == stage::Final)
-			break;
-		stage++;
-	    DealOnTable();
-		ShowTable(3);
-		break;
-	case stage::Flop:
-		NewRound();
-		Trade();
-		if (stage == stage::Final)
-			break;
-		stage++;
-		DealOnTable();
-		ShowTable(4);
-		break;
-	case stage::Turn:
-		NewRound();
-		Trade();
-		if (stage == stage::Final)
-			break;
-		stage++;
-		DealOnTable();
-		ShowTable(5);
-		break;
-	case stage::River:
-		NewRound();
-		Trade();
-		if (stage == stage::Final)
-			break;
-		stage++;
-		winner = FindWinner();
-		break;
-	case stage::Final:
-		break;
-	}
+	handstate->action(this);
 }
 
 void PlayHand::Trade() {
@@ -319,7 +332,7 @@ void PlayHand::Trade() {
 	int current_player = 0;
 	int player_bet = 0;
 
-	if (stage == stage::Preflop) {
+	if (GetState() == stage::Preflop) {
 		BetFromPlayer(players[0].val, blind_size);			// Small blind
 		BetFromPlayer(players[1].val, blind_size * 2);		// Big blind
 		bet = blind_size * 2;
@@ -328,7 +341,7 @@ void PlayHand::Trade() {
 	while (current_player < players.size || !IsEndOfRound(bet)) {
 		if (players_ingame == 1){
 			// The only player left -> End hand
-			stage = stage::Final;
+			SetState(std::make_unique<Final>());
 			// Iterate overplayer to find one that is InGame()
 			for (int i = 0; i < players.size; i++) {
 				if (players[i].val->IsInPlay())
