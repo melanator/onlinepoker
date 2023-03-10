@@ -9,24 +9,19 @@ class PokerTest : public testing::Test {
 protected:
     void SetUp(){
         playhand->SetBlind(5);
-		playhand->AddPlayer(player1).AddPlayer(player2).AddPlayer(player3).AddPlayer(player4);
+		playhand->AddPlayer(ivan).AddPlayer(petr).AddPlayer(sergey).AddPlayer(dmitriy);
     }
 
     void TearDown(){
         delete playhand;
     }
-
-    TestPlayHand* playhand = new TestPlayHand(ss);
     std::stringstream ss;
-    Player* player1 = new Player("Ivan", 1000);
-	Player* player2 = new Player("Petr", 1000);
-	Player* player3 = new Player("Sergey", 1000);
-	Player* player4 = new Player("Dmitriy", 1000);
-    // Lazy to rename players, make new pointer
-    Player* ivan = player1;
-    Player* petr = player2;
-    Player* sergey = player3;
-    Player* dmitriy = player4;
+    TestPlayHand* playhand = new TestPlayHand(ss);
+    
+    Player* ivan = new Player("Ivan", 1000);
+	Player* petr = new Player("Petr", 1000);
+	Player* sergey = new Player("Sergey", 1000);
+	Player* dmitriy = new Player("Dmitriy", 1000);
 	
 };
 
