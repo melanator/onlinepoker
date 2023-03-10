@@ -154,6 +154,7 @@ namespace Poker {
 		void action(PlayHand* playhand);
 		//void trade(PlayHand* playhand);
 	};
+
 	class Final final : public HandState {
 	public:
 		Final() : HandState(stage::Final) {};

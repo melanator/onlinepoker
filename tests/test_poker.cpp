@@ -256,7 +256,7 @@ TEST_F(PokerTest, InitialTest) {
     ss = std::stringstream("F F F");
 
     playhand->NewHand();
-	while (playhand->GetStage() != stage::Final)
+	while (playhand->GetState() != stage::Final)
 		playhand->Round();
 	playhand->FinishHand();
 
