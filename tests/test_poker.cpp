@@ -252,6 +252,37 @@ TEST(EvaluateTest, TestStraightFlush) {
         EXPECT_EQ(Evaluate(cards).combo_val, value::Eight);
     }
 }
+
+TEST(EvaluateTest, TestCombinations) {
+    {
+        DealtCards cards(7);
+        cards.Deal({ suit::Clubs, value::Ace });
+        cards.Deal({ suit::Clubs, value::King });
+        cards.Deal({ suit::Hearts, value::Ace });
+        cards.Deal({ suit::Diamonds, value::King });
+        cards.Deal({ suit::Spades, value::King });
+        cards.Deal({ suit::Clubs, value::Eight });
+        cards.Deal({ suit::Clubs, value::Six });
+        // straight from Four to Seven
+        EXPECT_EQ(Evaluate(cards).combo_rank, rank::FullHouse);
+        EXPECT_EQ(Evaluate(cards).combo_val, value::King);
+
+        DealtCards cards_second(7);
+        cards_second.Deal({ suit::Clubs, value::Ace });
+        cards_second.Deal({ suit::Spades, value::Ace });
+        cards_second.Deal({ suit::Hearts, value::Ace });
+        cards_second.Deal({ suit::Diamonds, value::Ace });
+        cards_second.Deal({ suit::Spades, value::King });
+        cards_second.Deal({ suit::Clubs, value::Eight });
+        cards_second.Deal({ suit::Clubs, value::Six });
+        // straight from Four to Seven
+        EXPECT_EQ(Evaluate(cards_second).combo_rank, rank::FourOfAKind);
+        EXPECT_EQ(Evaluate(cards_second).combo_val, value::Ace);
+        EXPECT_TRUE(Evaluate(cards_second).combo_rank > Evaluate(cards).combo_rank);
+    }
+}
+
+
 TEST_F(PokerTest, InitialTest) {
     ss = std::stringstream("F F F");
 
