@@ -123,6 +123,8 @@ namespace Poker {
 		virtual void action(PlayHand*) = 0;
 		//virtual void trade(PlayHand*) = 0;
 		stage GetStage() { return state_name;  }
+        virtual ~HandState() = default;
+
 	protected:
 		stage state_name;
 	};
@@ -162,19 +164,7 @@ namespace Poker {
 		//void trade(PlayHand* playhand);
 	};
 
-	class HandIO {
-		/* Class for represting flow of game */
-	};
 
-	class TableDispatcher {
-		/* Class for handling table through games, managing players and etc*/
-
-	private:
-		std::unique_ptr<PlayHand> hand;
-		std::vector<std::unique_ptr<Player>> players;
-
-	};
-		
 	class DealtCards{
 	public:
 		friend Combination Evaluate(const DealtCards& dealt);
@@ -184,6 +174,7 @@ namespace Poker {
 		void Deal(Card card);
 		Card& operator[](int index) { return cards[index]; };
 		Card operator[](int index) const { return cards[index]; }
+        int OpenCards() const { return open_cards; }
 		friend DealtCards operator+(const DealtCards& lhs, const DealtCards& rhs){
 			DealtCards result(lhs.open_cards + rhs.open_cards);
 			for(int i = 0; i < lhs.open_cards; i++){
@@ -215,6 +206,26 @@ namespace Poker {
 		}
 
 	};
+
+    class HandIO {
+    public:
+        /* Class for streaming flow of game */
+        explicit HandIO(std::istream& in = std::cin, std::ostream& out = std::cout): in_(in), out_(out){}
+
+        std::ostream& ShowTable(const DealtCards& cards);
+
+        std::istream& in_;
+        std::ostream& out_;
+    };
+
+    class TableDispatcher {
+        /* Class for handling table through games, managing players and etc*/
+
+    private:
+        std::unique_ptr<PlayHand> hand;
+        std::vector<std::unique_ptr<Player>> players;
+
+    };
 
 	class Player{
 	public:
@@ -251,9 +262,9 @@ namespace Poker {
 
 	class PlayHand{
 	public:
-		PlayHand(std::istream& str = std::cin) : 
-			dealt_cards(5), 
-			input(str)
+		PlayHand(std::istream& in = std::cin, std::ostream& out = std::cout) :
+			dealt_cards(5),
+			io(in, out)
 		{
 			handstate = std::make_unique<PreFlop>();
 		};
@@ -265,7 +276,7 @@ namespace Poker {
 		PlayHand& AddPlayer(Player* player);
 		void ActivatePlayers();
 		void Round();
-		void ShowTable(const int cards);
+        std::ostream& ShowTable(const int cards);
 		void SetWinner(Player* player);
 		void FinishHand();
 		void Trade();
@@ -275,10 +286,9 @@ namespace Poker {
 		Player* FindWinner();
 		stage GetState() { return handstate->GetStage(); }
 		void SetState(std::unique_ptr<HandState> state);
-	
+
 	protected:
 		Deck deck;
-		std::istream& input = std::cin;
 
 	private:
 		Table<Player> players;
@@ -291,7 +301,7 @@ namespace Poker {
 		void BetFromPlayer(Player* player, const int amount);
 		bool IsEndOfRound(const int high_bet);
 		std::unique_ptr<HandState> handstate;
-		std::unique_ptr<HandIO> out;
+		HandIO io;
 	};
 	
 	class TestPlayHand : public PlayHand {

@@ -84,6 +84,11 @@ std::ostream& operator<<(std::ostream& os, const Combination& combination){
 	return os;
 }
 
+std::ostream& operator<<(HandIO& io, const std::string str){
+    io.out_ << str;
+    return io.out_;
+}
+
 stage operator++(stage& st, int) {
 	switch (st) {
 	case stage::Preflop:
@@ -245,13 +250,13 @@ void PlayHand::DealToPlayers() {
 
 void PlayHand::NewHand(const int new_blind) {
 	// Algorithm for each new hand
-	
+
 	if (new_blind) {
 		blind_size = new_blind;
 	}
 
     deck.Shuffle();			// New instance of deck with shuffled card
-	players.shift();		// Assign positions 
+	players.shift();		// Assign positions
 	ActivatePlayers();		// Activate players
 	SetState(std::make_unique<PreFlop>()); // Refresh stage
 	bank = 0;				// Null the bank
@@ -347,7 +352,7 @@ void PlayHand::Trade() {
 			return;
 		}
 
-		Move player_move = players[current_player].val->Trade(bank, bet, input);
+		Move player_move = players[current_player].val->Trade(bank, bet, io.in_);
 		player_bet = player_move.bet;
 		bank += player_bet;
 
@@ -588,14 +593,18 @@ bool PlayHand::IsEndOfRound(const int high_bet) {
 	return is_end;
 }
 
-void PlayHand::ShowTable(const int cards) {
-	for (int i = 0; i < cards; i++) {
-		std::cout << dealt_cards[i] << " ";
+std::ostream& PlayHand::ShowTable(const int cards) {
+    return io.ShowTable(dealt_cards);
+}
+
+std::ostream& HandIO::ShowTable(const DealtCards& cards) {
+	for (int i = 0; i < cards.OpenCards(); i++) {
+		out_ << cards[i] << " ";
 	}
-	for (int i = cards; i < 5; i++) {
-		std::cout << "XX" << " ";
+	for (int i = cards.OpenCards(); i < 5; i++) {
+        out_ << "XX" << " ";
 	}
-	std::cout << std::endl;
+    return out_;
 }
 
 void PlayHand::BetFromPlayer(Player* player, const int amount) {
