@@ -220,10 +220,16 @@ namespace Poker {
 
     class TableDispatcher {
         /* Class for handling table through games, managing players and etc*/
+    public:
+        TableDispatcher(): hand(std::make_unique<PlayHand>()) {}
+
+        void AddPlayer(Player* player);
+        void RemovePlayer(Player* player);
+        void StartNewHand(const int blind=0);
 
     private:
         std::unique_ptr<PlayHand> hand;
-        std::vector<std::unique_ptr<Player>> players;
+        std::vector<Player*> players;
 
     };
 
@@ -249,7 +255,6 @@ namespace Poker {
 		
 	private:
 		Move ReadAction(std::string& decision, std::istream& input = std::cin);
-
 		int money = START_BANK;
         int hand_power;
 		int bet_this_hand = 0;

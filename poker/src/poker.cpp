@@ -643,8 +643,9 @@ int main() {
 	Player* player3 = new Player("Sergey", 1000);
 	Player* player4 = new Player("Dmitriy", 1000);
 	
+	TableDispatcher game;
 
-	PlayHand playhand;
+    PlayHand playhand;
 	playhand.SetBlind(5);
 	playhand.AddPlayer(player1).AddPlayer(player2).AddPlayer(player3).AddPlayer(player4);
 	while (true) {
